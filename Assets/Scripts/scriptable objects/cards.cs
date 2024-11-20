@@ -1,0 +1,17 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "New Card", menuName = "Card")]
+public class cards :ScriptableObject
+{
+    public string name;
+    public float damage;
+    public float cooldown;
+    public float bullets;
+
+    public void Print()
+    {
+        Debug.Log($"{name}: Damage={damage}, Cooldown={cooldown}, Bullets={bullets}");
+    }
+}
