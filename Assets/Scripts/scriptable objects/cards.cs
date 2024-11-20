@@ -12,6 +12,6 @@ public class cards :ScriptableObject
 
     public void Print()
     {
-        Debug.Log($"{name}: Damage={damage}, Cooldown={cooldown}, Bullets={bullets}");
+        Debug.Log(name + ": " + damage + cooldown + bullets);
     }
 }

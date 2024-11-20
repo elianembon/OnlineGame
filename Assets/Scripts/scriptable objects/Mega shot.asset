@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d62039de8228df842ba78b5f6c93762e, type: 3}
-  m_Name: Frost shot
+  m_Name: Mega shot
   m_EditorClassIdentifier: 
-  name: Frost shot
-  damage: 7
-  cooldown: 1
-  bullets: 5
+  name: Mega shot
+  damage: 25
+  cooldown: 2
+  bullets: 2

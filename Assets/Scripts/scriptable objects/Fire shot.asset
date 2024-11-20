@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d62039de8228df842ba78b5f6c93762e, type: 3}
   m_Name: Fire shot
   m_EditorClassIdentifier: 
-  name: 
-  damage: 
-  cooldown: 
-  bullets: 
+  name: Fire Shot
+  damage: 7
+  cooldown: 1
+  bullets: 5
