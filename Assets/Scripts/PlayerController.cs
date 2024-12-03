@@ -7,67 +7,43 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     private PhotonView pv;
-    private Camera playerCamera;
+    private Camera camera;
     private int health = 60; // Vida inicial de la nave
-
-    [SerializeField] private Slider healthSlider; // Referencia al Slider
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 5, -10);
-    [SerializeField] private float cameraFollowSpeed = 5f;
-    [SerializeField] private float rotationSmoothSpeed = 10f;
 
     private void Awake()
     {
         pv = GetComponent<PhotonView>();
+        camera = GetComponentInChildren<Camera>();
     }
 
     private void Start()
     {
-        if (pv.IsMine)
-        {
-            // Configurar la cámara
-            playerCamera = GetComponentInChildren<Camera>();
-            if (playerCamera != null)
-            {
-                playerCamera.gameObject.SetActive(true);
-            }
-            else
-            {
-                Debug.LogError("No se encontró una cámara principal.");
-            }
-
-            // Configurar el Slider si está asignado
-            if (healthSlider != null)
-            {
-                healthSlider.maxValue = 60;
-                healthSlider.value = health;
-            }
-            else
-            {
-                Debug.LogError("No se asignó un Slider en el inspector.");
-            }
-        }
+        camera.gameObject.SetActive(pv.IsMine);
     }
 
     private void Update()
     {
         if (pv.IsMine)
         {
-            Vector3 direction = Vector3.zero;
-            if (Input.GetKey(KeyCode.W)) direction += Vector3.up;
-            if (Input.GetKey(KeyCode.S)) direction += Vector3.down;
-            if (Input.GetKey(KeyCode.A)) direction += Vector3.left;
-            if (Input.GetKey(KeyCode.D)) direction += Vector3.right;
-
-            if (direction != Vector3.zero)
+            // Movimiento
+            if (Input.GetKey(KeyCode.W))
             {
-                transform.position += direction.normalized * 5 * Time.deltaTime;
-
-                Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, direction);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
+                transform.position += Vector3.up * 5 * Time.deltaTime;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                transform.position += -Vector3.up * 5 * Time.deltaTime;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                transform.position += -Vector3.right * 5 * Time.deltaTime;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                transform.position += Vector3.right * 5 * Time.deltaTime;
             }
 
-            UpdateCameraPosition();
-
+            // Restar vida al presionar K
             if (Input.GetKeyDown(KeyCode.K))
             {
                 pv.RPC("TakeDamage", RpcTarget.AllBuffered, 15);
@@ -75,36 +51,39 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void UpdateCameraPosition()
-    {
-        if (playerCamera != null)
-        {
-            Vector3 targetPosition = transform.position + cameraOffset;
-            playerCamera.transform.position = Vector3.Lerp(playerCamera.transform.position, targetPosition, Time.deltaTime * cameraFollowSpeed);
-            playerCamera.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-    }
-
     [PunRPC]
     void TakeDamage(int damage)
     {
-        if (!pv.IsMine) return;
+        if (!pv.IsMine) return; // Asegura que solo afecta a esta nave
 
         health -= damage;
-        health = Mathf.Clamp(health, 0, 60); // Aseguramos que la vida no sea menor que 0
-
-        // Actualizar el Slider
-        if (healthSlider != null)
-        {
-            healthSlider.value = health;
-        }
-
         Debug.Log($"Nave {pv.Owner.NickName} recibió daño. Vida restante: {health}");
 
         if (health <= 0)
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
+            // Aquí puedes agregar lógica para destruir la nave o realizar otra acción
             PhotonNetwork.Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (pv.IsMine && collision.transform.CompareTag("Coin"))
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("CollectCoin", RpcTarget.AllBuffered, collision.gameObject.GetComponent<PhotonView>().ViewID);
+        }
+    }
+
+    [PunRPC]
+    void CollectCoin(int coinViewID)
+    {
+        PhotonView coinPhotonView = PhotonView.Find(coinViewID);
+        if (coinPhotonView != null)
+        {
+            PhotonNetwork.Destroy(coinPhotonView.gameObject);
+            GameManager.instance.AddCoinToPool();
         }
     }
 }
