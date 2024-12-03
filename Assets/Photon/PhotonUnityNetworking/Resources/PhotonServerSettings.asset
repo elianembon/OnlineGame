@@ -41,11 +41,7 @@ MonoBehaviour:
   - RespawnSpaceship
   - ChangeColor
   - CollectCoin
-  - ApplyCardEffect
-  - ApplyCardToPlayer
-  - NextSelector
-  - SendLosersToCardScene
-  - SetSelector
+  - TakeDamage
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
