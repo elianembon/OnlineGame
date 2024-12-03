@@ -63,8 +63,14 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
             NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
-            PhotonNetwork.Destroy(gameObject);
+            HandleDefeat();
         }
+    }
+
+    private void HandleDefeat()
+    {
+        gameObject.SetActive(false); // Desactivar el jugador para simular su muerte
+        NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
     }
 
     private void NotifyRoundManager()
