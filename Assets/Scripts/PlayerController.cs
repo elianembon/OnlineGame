@@ -62,8 +62,27 @@ public class PlayerController : MonoBehaviour
         if (health <= 0)
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
-            // Aquí puedes agregar lógica para destruir la nave o realizar otra acción
-            PhotonNetwork.Destroy(gameObject);
+            NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+            HandleDefeat();
+        }
+    }
+
+    private void HandleDefeat()
+    {
+        gameObject.SetActive(false); // Desactivar el jugador para simular su muerte
+        NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+    }
+
+    private void NotifyRoundManager()
+    {
+        RoundManager roundManager = FindObjectOfType<RoundManager>();
+        if (roundManager != null)
+        {
+            roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
+        }
+        else
+        {
+            Debug.LogError("No se encontró un RoundManager en la escena.");
         }
     }
 

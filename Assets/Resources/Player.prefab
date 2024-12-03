@@ -190,8 +190,8 @@ GameObject:
   - component: {fileID: 5945423150168383549}
   - component: {fileID: 2756172228047672020}
   - component: {fileID: 2432270004321734371}
-  - component: {fileID: 8946939333435934216}
   - component: {fileID: 1740508406728059852}
+  - component: {fileID: 4171554133683736772}
   m_Layer: 0
   m_Name: objectPlayer
   m_TagString: Player
@@ -341,19 +341,6 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
---- !u!114 &8946939333435934216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4537193759442732516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f972cbc05efeb7499d6db97ca85d534, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  health: 100
 --- !u!50 &1740508406728059852
 Rigidbody2D:
   serializedVersion: 4
@@ -381,6 +368,25 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &4171554133683736772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4537193759442732516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65be6ae8282b2364f84978f650edcee1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 0
+  baseDamage: 1
+  baseCooldown: 1
+  baseBullets: 10
+  currentDamage: 0
+  currentCooldown: 0
+  currentBullets: 0
 --- !u!1 &4761593612701339952
 GameObject:
   m_ObjectHideFlags: 0

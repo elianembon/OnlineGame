@@ -42,7 +42,13 @@ MonoBehaviour:
   - ChangeColor
   - CollectCoin
   - TakeDamage
-  - UpdateRotation
+  - ApplyCardEffect
+  - ApplyCardToPlayer
+  - NextSelector
+  - SendLosersToCardScene
+  - SetSelector
+  - SendToCardSelection
+  - UpdateLosersList
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
