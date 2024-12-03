@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     private PhotonView pv;
     private Camera camera;
-    
+    private int health = 60; // Vida inicial de la nave
 
     private void Awake()
     {
@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     {
         if (pv.IsMine)
         {
+            // Movimiento
             if (Input.GetKey(KeyCode.W))
             {
                 transform.position += Vector3.up * 5 * Time.deltaTime;
@@ -40,6 +41,28 @@ public class PlayerController : MonoBehaviour
             {
                 transform.position += Vector3.right * 5 * Time.deltaTime;
             }
+
+            // Restar vida al presionar K
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                pv.RPC("TakeDamage", RpcTarget.AllBuffered, 15);
+            }
+        }
+    }
+
+    [PunRPC]
+    void TakeDamage(int damage)
+    {
+        if (!pv.IsMine) return; // Asegura que solo afecta a esta nave
+
+        health -= damage;
+        Debug.Log($"Nave {pv.Owner.NickName} recibió daño. Vida restante: {health}");
+
+        if (health <= 0)
+        {
+            Debug.Log($"Nave {pv.Owner.NickName} destruida.");
+            // Aquí puedes agregar lógica para destruir la nave o realizar otra acción
+            PhotonNetwork.Destroy(gameObject);
         }
     }
 
