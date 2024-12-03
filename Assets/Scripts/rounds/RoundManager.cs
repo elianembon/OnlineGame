@@ -22,7 +22,7 @@ public class RoundManager : MonoBehaviourPun
 
             photonView.RPC("UpdateLosersList", RpcTarget.All, playerStats.photonView.Owner.ActorNumber);
 
-            if (losers.Count == 2) // Si dos jugadores han perdido
+            if (losers.Count == 2) // Si dos jugadores perdieron
             {
                 EndRound(playerStats);
             }

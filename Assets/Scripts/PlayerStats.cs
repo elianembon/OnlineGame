@@ -5,7 +5,7 @@ using Photon.Pun;
 
 public class PlayerStats : MonoBehaviourPun
 {
-    public int health;
+
     public int score;
 
     public float baseDamage = 10f;
