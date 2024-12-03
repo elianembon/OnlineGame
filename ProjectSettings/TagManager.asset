@@ -41,6 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Sona
+    uniqueID: 2675741681
+    locked: 0
   - name: Player
     uniqueID: 916577763
     locked: 0
