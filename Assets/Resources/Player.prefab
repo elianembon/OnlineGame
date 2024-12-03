@@ -308,10 +308,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e66f0dec1ad9924aa6a46d640a2e079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthSlider: {fileID: 8379667488757525622}
-  cameraOffset: {x: 0, y: 0, z: -10}
-  cameraFollowSpeed: 5
-  rotationSmoothSpeed: 10
 --- !u!114 &2432270004321734371
 MonoBehaviour:
   m_ObjectHideFlags: 0
