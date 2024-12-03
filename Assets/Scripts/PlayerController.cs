@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
         if (pv.IsMine)
         {
             // Configurar la cámara
-            playerCamera = Camera.main;
+            playerCamera = GetComponentInParent<Camera>();
             if (playerCamera != null)
             {
                 playerCamera.gameObject.SetActive(true);
@@ -64,6 +64,8 @@ public class PlayerController : MonoBehaviour
 
                 Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, direction);
                 transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
+
+                pv.RPC("UpdateRotation", RpcTarget.AllBuffered, transform.rotation);
             }
 
             UpdateCameraPosition();
@@ -106,5 +108,11 @@ public class PlayerController : MonoBehaviour
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
             PhotonNetwork.Destroy(gameObject);
         }
+    }
+
+    [PunRPC]
+    void UpdateRotation(Quaternion rotation)
+    {
+        transform.rotation = rotation;
     }
 }
