@@ -78,6 +78,13 @@ public class RoundManager : MonoBehaviourPun
             loserPlayers.Add(loser.photonView.Owner);
         }
 
+        // Enviar la lista de perdedores al CardSelectionManager para que puedan elegir cartas
+        CardSelectionManager cardSelectionManager = FindObjectOfType<CardSelectionManager>();
+        if (cardSelectionManager != null)
+        {
+            cardSelectionManager.SetLosers(loserPlayers); // Pasa la lista de perdedores al CardSelectionManager
+        }
+
         // Enviar a los perdedores a la escena "PickMejora"
         photonView.RPC("SendToCardSelection", RpcTarget.All, loserPlayers[0].ActorNumber, loserPlayers[1].ActorNumber);
     }

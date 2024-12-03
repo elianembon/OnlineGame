@@ -20,35 +20,19 @@ public class CardDisplay : MonoBehaviour
         selectButton.onClick.AddListener(OnCardSelected);
     }
 
-    
-
     public void SetCard(cards newCard)
     {
-        card = newCard;  // Asignar la carta al slot
+        card = newCard;
 
-        if (card == null)
-        {
-            Debug.LogError("No card assigned in SetCard!");
-        }
-        else
-        {
-            // Actualizar UI
-            nameText.text = card.name;
-            damageText.text = card.damage.ToString();
-            bulletsText.text = card.bullets.ToString();
-            cooldownText.text = card.cooldown.ToString();
-        }
+        nameText.text = card.name;
+        damageText.text = "" + card.damage.ToString();
+        bulletsText.text = "" + card.bullets.ToString();
+        cooldownText.text = "" + card.cooldown.ToString();
     }
 
     void OnCardSelected()
     {
-        if (card != null)
-        {
-            Debug.Log($"{card.name} selected!");
-        }
-        else
-        {
-            Debug.LogError("No card assigned in OnCardSelected!");
-        }
+        Debug.Log($"{card.name} selected!");
+
     }
 }

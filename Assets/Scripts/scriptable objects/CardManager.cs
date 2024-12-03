@@ -9,6 +9,6 @@ public class CardManager : MonoBehaviour
     public cards GetRandomCard()
     {
         // Seleccionar una carta al azar de la lista
-        return allCards[Random.Range(0, allCards.Count)];
+        return allCards[Random.Range(1, allCards.Count)];
     }
 }
