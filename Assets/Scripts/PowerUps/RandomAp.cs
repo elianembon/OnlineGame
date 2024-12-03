@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class RandomAp : MonoBehaviour
 {
-    public GameObject Object;
+    public GameObject thing;
     public Vector2 spawnAreaMin; //segun el tamaño actual del mapa, seria x: -160 y y: -65
     public Vector2 spawnAreaMax; //segun el tamaño actual del mapa, seria x: 170 y y: 75
 
@@ -26,17 +26,16 @@ public class RandomAp : MonoBehaviour
 
             Vector2 randPos = new Vector2(randomX, randomY);
 
-            Instantiate(Object, randPos, Quaternion.identity);
-            //PhotonNetwork.Instantiate(Object.name, randPos, Quaternion.identity);
+        PhotonNetwork.Instantiate(thing.name, randPos, Quaternion.identity);
 
-          /*  spawnCount++;
-        }
-        else
-        {
-            Debug.Log("No mas power ups");
-        }
+        /*  spawnCount++;
+      }
+      else
+      {
+          Debug.Log("No mas power ups");
+      }
 
-        */
+      */
     }
     /*Para cuando obj aparezca en otro lado al ser consumido
     private void OnTriggerEnter2D(Collider2D other)
@@ -44,6 +43,7 @@ public class RandomAp : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Destroy(gameObject);
+            PhotonNetwork.Destroy (photonView) (para que funcione tiene que ser un MonobehaviorPun)
 
        if (spawnCount < spawnCountMax)
             {
