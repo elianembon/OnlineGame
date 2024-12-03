@@ -24,17 +24,31 @@ public class CardDisplay : MonoBehaviour
 
     public void SetCard(cards newCard)
     {
-        card = newCard;
+        card = newCard;  // Asignar la carta al slot
 
-        nameText.text = card.name;
-        damageText.text = "" + card.damage.ToString();
-        bulletsText.text = "" + card.bullets.ToString();
-        cooldownText.text = "" + card.cooldown.ToString();
+        if (card == null)
+        {
+            Debug.LogError("No card assigned in SetCard!");
+        }
+        else
+        {
+            // Actualizar UI
+            nameText.text = card.name;
+            damageText.text = card.damage.ToString();
+            bulletsText.text = card.bullets.ToString();
+            cooldownText.text = card.cooldown.ToString();
+        }
     }
 
     void OnCardSelected()
     {
-        Debug.Log($"{card.name} selected!");
-        
+        if (card != null)
+        {
+            Debug.Log($"{card.name} selected!");
+        }
+        else
+        {
+            Debug.LogError("No card assigned in OnCardSelected!");
+        }
     }
 }

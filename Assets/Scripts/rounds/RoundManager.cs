@@ -1,58 +1,66 @@
-using System.Collections;
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 
 public class RoundManager : MonoBehaviourPun
 {
-    private List<PlayerStats> losers = new List<PlayerStats>();
-    public Dictionary<PlayerController, PlayerStats> playerStatsMap = new Dictionary<PlayerController, PlayerStats>();
+    public List<PlayerStats> losers = new List<PlayerStats>();
 
-    public void PlayerDefeated(PlayerController player)
+    public void PlayerDefeated(Photon.Realtime.Player photonPlayer)
     {
-        if (playerStatsMap.TryGetValue(player, out PlayerStats playerStats))
+        PlayerStats playerStats = FindPlayerStatsByPhotonPlayer(photonPlayer);
+        if (playerStats == null)
         {
-            if (!losers.Contains(playerStats))
-            {
-                losers.Add(playerStats);
-                Debug.Log($"{playerStats.name} ha sido derrotado");
-            }
+            Debug.LogError($"No se encontró PlayerStats para el jugador {photonPlayer.NickName}.");
+            return;
+        }
 
-            // Si todos menos uno están derrotados
-            if (losers.Count == 2)
+        if (!losers.Contains(playerStats))
+        {
+            losers.Add(playerStats);
+            Debug.Log($"Jugador {playerStats.name} agregado a la lista de perdedores.");
+
+            if (losers.Count == 2) // Si dos jugadores han perdido
             {
-                PlayerStats winner = null;
-                foreach (var pair in playerStatsMap)
-                {
-                    if (!losers.Contains(pair.Value))
-                    {
-                        winner = pair.Value;
-                        break;
-                    }
-                }
-                EndRound(winner);
+                EndRound(playerStats);
             }
         }
-        else
+    }
+
+    private PlayerStats FindPlayerStatsByPhotonPlayer(Photon.Realtime.Player photonPlayer)
+    {
+        PlayerStats[] allPlayers = FindObjectsOfType<PlayerStats>();
+        foreach (PlayerStats playerStats in allPlayers)
         {
-            Debug.LogError("No se encontró PlayerStats para el jugador derrotado.");
+            if (playerStats.photonView.Owner == photonPlayer) // Compara propietarios
+            {
+                return playerStats;
+            }
         }
+        return null; // No se encontró un jugador con ese PhotonPlayer
     }
 
     private void EndRound(PlayerStats winner)
     {
-        photonView.RPC("SendLosersToCardScene", RpcTarget.All);
+        Debug.Log($"Ronda terminada. Ganador: {winner.name}");
+
+        // Obtén las referencias a los jugadores que perdieron
+        List<Photon.Realtime.Player> loserPlayers = new List<Photon.Realtime.Player>();
+        foreach (var loser in losers)
+        {
+            loserPlayers.Add(loser.photonView.Owner);
+        }
+
+        // Enviar a los perdedores a la escena "PickMejora"
+        photonView.RPC("SendToCardSelection", RpcTarget.All, loserPlayers[0].ActorNumber, loserPlayers[1].ActorNumber);
     }
 
     [PunRPC]
-    private void SendLosersToCardScene()
+    private void SendToCardSelection(int firstLoserActor, int secondLoserActor)
     {
-        foreach (PlayerStats loser in losers)
+        if (PhotonNetwork.LocalPlayer.ActorNumber == firstLoserActor || PhotonNetwork.LocalPlayer.ActorNumber == secondLoserActor)
         {
-            if (loser.photonView.IsMine)
-            {
-                PhotonNetwork.LoadLevel("CardSelectionScene");
-            }
+            PhotonNetwork.LoadLevel("PickMejora");
         }
     }
 }

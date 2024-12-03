@@ -8,7 +8,7 @@ public class cards :ScriptableObject
     public string name;
     public float damage;
     public float cooldown;
-    public float bullets;
+    public int bullets;
 
     public void Print()
     {

@@ -5,6 +5,9 @@ using Photon.Pun;
 
 public class PlayerStats : MonoBehaviourPun
 {
+    public int health;
+    public int score;
+
     public float baseDamage = 10f;
     public float baseCooldown = 1f;
     public int baseBullets = 1;
@@ -19,6 +22,19 @@ public class PlayerStats : MonoBehaviourPun
         currentDamage = baseDamage;
         currentCooldown = baseCooldown;
         currentBullets = baseBullets;
+    }
+
+    private PlayerStats FindPlayerStatsByPhotonPlayer(Photon.Realtime.Player photonPlayer)
+    {
+        PlayerStats[] allPlayers = FindObjectsOfType<PlayerStats>();
+        foreach (PlayerStats playerStats in allPlayers)
+        {
+            if (playerStats.photonView.Owner == photonPlayer) // Compara propietarios
+            {
+                return playerStats;
+            }
+        }
+        return null; // No se encontró un jugador con ese PhotonPlayer
     }
 
     [PunRPC]

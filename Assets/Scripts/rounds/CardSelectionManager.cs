@@ -5,24 +5,38 @@ using Photon.Pun;
 
 public class CardSelectionManager : MonoBehaviourPun
 {
+    public CardManager cardManager; // Referencia a la lista de cartas
+    public CardDisplay[] cardSlots; // Slots donde se mostrarán las cartas
     private int currentSelectorIndex = 0; // Índice del jugador que selecciona
-    public List<cards> availableCards; // Lista de cartas disponibles
 
     void Start()
     {
+        // Solo el MasterClient puede iniciar la asignación de cartas
         if (PhotonNetwork.IsMasterClient)
         {
+            AssignRandomCards();
             photonView.RPC("SetSelector", RpcTarget.AllBuffered, PhotonNetwork.PlayerList[currentSelectorIndex].ActorNumber);
+        }
+    }
+
+    // Método para asignar cartas aleatorias a los slots
+    void AssignRandomCards()
+    {
+        foreach (CardDisplay slot in cardSlots)
+        {
+            cards randomCard = cardManager.GetRandomCard(); // Obtener una carta aleatoria
+            slot.SetCard(randomCard); // Asignar la carta al slot
         }
     }
 
     [PunRPC]
     private void SetSelector(int actorNumber)
     {
+        // Comprobar si este jugador es el que le toca elegir
         if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber)
         {
             Debug.Log("Es tu turno de elegir una carta.");
-            // Mostrar UI para elegir carta
+            // Mostrar UI para que este jugador pueda elegir una carta
         }
     }
 
@@ -45,7 +59,7 @@ public class CardSelectionManager : MonoBehaviourPun
         }
         else
         {
-            // Volver al juego principal
+            // Volver al juego principal cuando todos hayan seleccionado
             PhotonNetwork.LoadLevel("MainGameScene");
         }
     }
