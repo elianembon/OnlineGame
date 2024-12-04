@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -14,11 +15,12 @@ public class PlayerController : MonoBehaviour
      //private Vector3 cameraOffset = new Vector3(0, 0, -10);
     [SerializeField] private float cameraFollowSpeed = 5f;
     [SerializeField] private float rotationSmoothSpeed = 10f;
-
+    [SerializeField] private TextMeshProUGUI countdownText; // Texto del canvas del jugador
     private void Awake()
     {
         pv = GetComponent<PhotonView>();
         playerCamera = GetComponentInChildren<Camera>();
+        countdownText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void Start()
@@ -27,6 +29,14 @@ public class PlayerController : MonoBehaviour
             playerCamera.gameObject.SetActive(pv.IsMine);
         if (pv.IsMine)
         {
+
+            UiManager uiManager = FindObjectOfType<UiManager>();
+            if (uiManager != null && countdownText != null)
+            {
+                uiManager.RegisterCountdownText(countdownText);
+            }
+
+
             // Configurar el Slider de vida
             if (healthSlider != null)
             {
@@ -58,7 +68,7 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement()
     {
 
-        if (!pv.IsMine) return; // Solo el propietario puede manejar su movimiento
+        if (!pv.IsMine || !GgGameManager.canMove) return; // Solo el propietario puede manejar su movimiento
 
         Vector2 direction = Vector2.zero;
 
