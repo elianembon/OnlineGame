@@ -8,7 +8,9 @@ using UnityEngine.SceneManagement;
 
 public class SessionLostInGameplay : MonoBehaviourPunCallbacks
 {
+
     public GameObject reconnectPanel;
+
     void Start()
     {
         reconnectPanel.SetActive(false);
@@ -24,10 +26,13 @@ public class SessionLostInGameplay : MonoBehaviourPunCallbacks
     public void ShowPanelFailed()
     {
         reconnectPanel.SetActive(true);
+        StartCoroutine(WaitBeforeGoToMenu());
     }
 
-    public void GoToMenu()
+    private IEnumerator WaitBeforeGoToMenu()
     {
+        Debug.Log("Esperando 5 segundos antes de entrar ir al menu...");
+        yield return new WaitForSeconds(5f); // Espera 5 segundos para volver al menu
         PhotonNetwork.LoadLevel("Menu");
     }
 
