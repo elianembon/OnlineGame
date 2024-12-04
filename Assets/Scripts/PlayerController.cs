@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     // Player
     public int health = 60; // Vida inicial de la nave
     [SerializeField] private float rotationSmoothSpeed = 10f;
+    private bool isOutsideSafeZone = false; // Indica si el jugador está fuera de la zona segura
 
     // Camera
     [SerializeField] private float cameraFollowSpeed = 5f;
@@ -25,6 +26,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 networkedPosition; // Posición objetivo de red
     private Quaternion networkedRotation; // Rotación objetivo de red
     [SerializeField] private float interpolationSpeed = 10f; // Velocidad de interpolación
+
+    private float damageInterval = 1f; // Intervalo para aplicar daño (1 segundo)
+    private float damageTimer = 0f; // Temporizador para el daño
 
     private void Awake()
     {
@@ -68,12 +72,12 @@ public class PlayerController : MonoBehaviour
         networkedRotation = transform.rotation;
     }
 
-
     private void Update()
     {
         if (pv.IsMine)
         {
             HandleMovement();
+            HandleDamageOutsideSafeZone();
         }
         else
         {
@@ -104,6 +108,18 @@ public class PlayerController : MonoBehaviour
 
             // Sincronizar posición y rotación con otros jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+        }
+    }
+
+    private void HandleDamageOutsideSafeZone()
+    {
+        if (!isOutsideSafeZone) return;
+
+        damageTimer += Time.deltaTime;
+        if (damageTimer >= damageInterval)
+        {
+            damageTimer = 0f;
+            TakeDamage(2); // Aplicar daño periódico
         }
     }
 
@@ -165,23 +181,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D other)
     {
-        if (pv.IsMine && collision.transform.CompareTag("Coin"))
+        if (other.CompareTag("SafeZone"))
         {
-            PhotonView photonView = PhotonView.Get(this);
-            photonView.RPC("CollectCoin", RpcTarget.AllBuffered, collision.gameObject.GetComponent<PhotonView>().ViewID);
+            isOutsideSafeZone = true;
+            Debug.Log($"Jugador {pv.Owner.NickName} salió de la zona segura.");
         }
     }
 
-    [PunRPC]
-    void CollectCoin(int coinViewID)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        PhotonView coinPhotonView = PhotonView.Find(coinViewID);
-        if (coinPhotonView != null)
+        if (other.CompareTag("SafeZone"))
         {
-            PhotonNetwork.Destroy(coinPhotonView.gameObject);
-            GameManager.instance.AddCoinToPool();
+            isOutsideSafeZone = false;
+            Debug.Log($"Jugador {pv.Owner.NickName} entró a la zona segura.");
         }
     }
 }
