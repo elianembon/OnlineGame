@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &304721338916369842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1846819311232415681}
+  m_Layer: 0
+  m_Name: pointShot
+  m_TagString: Untagged
+  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1846819311232415681
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 304721338916369842}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.52, y: 0.019, z: 0.071220316}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 805003371723515312}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1013551368707071570
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,9 +222,9 @@ GameObject:
   - component: {fileID: 5945423150168383549}
   - component: {fileID: 2756172228047672020}
   - component: {fileID: 2432270004321734371}
-  - component: {fileID: 1740508406728059852}
   - component: {fileID: 4171554133683736772}
-  m_Layer: 0
+  - component: {fileID: 1542423185005564611}
+  m_Layer: 6
   m_Name: objectPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -309,10 +340,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e66f0dec1ad9924aa6a46d640a2e079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthSlider: {fileID: 8379667488757525622}
-  cameraFollowSpeed: 5
+  health: 60
   rotationSmoothSpeed: 10
+  cameraFollowSpeed: 5
+  healthSlider: {fileID: 8379667488757525622}
   countdownText: {fileID: 0}
+  interpolationSpeed: 10
 --- !u!114 &2432270004321734371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,33 +379,6 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
---- !u!50 &1740508406728059852
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4537193759442732516}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!114 &4171554133683736772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,6 +398,21 @@ MonoBehaviour:
   currentDamage: 0
   currentCooldown: 0
   currentBullets: 0
+--- !u!114 &1542423185005564611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4537193759442732516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3969758d58313c44860aabc63894f74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 3549025642292233784, guid: 598c59d73dcc9944aa4b90cf0bba2428, type: 3}
+  bulletSpawnPoint: {fileID: 1846819311232415681}
+  bulletSpeed: 0
 --- !u!1 &4761593612701339952
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,10 +439,11 @@ Transform:
   m_GameObject: {fileID: 4761593612701339952}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.737, y: 0.037, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1846819311232415681}
   m_Father: {fileID: 5485012726964294349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5242481988763180334
@@ -465,7 +487,7 @@ SpriteRenderer:
   m_SortingLayerID: 916577763
   m_SortingLayer: 2
   m_SortingOrder: 6
-  m_Sprite: {fileID: 81733022, guid: d26c6c58a655ebb40b94dc26e90cd3fa, type: 3}
+  m_Sprite: {fileID: 1235414733, guid: d26c6c58a655ebb40b94dc26e90cd3fa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
