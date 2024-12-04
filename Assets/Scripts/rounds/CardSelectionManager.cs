@@ -5,15 +5,13 @@ using Photon.Pun;
 
 public class CardSelectionManager : MonoBehaviourPun
 {
-    public CardManager cardManager; 
-    public CardDisplay[] cardSlots; 
-    private int currentSelectorIndex = 0; 
-
-    private List<Photon.Realtime.Player> losers = new List<Photon.Realtime.Player>(); 
+    public CardManager cardManager;
+    public CardDisplay[] cardSlots;
+    private int currentSelectorIndex = 0;
+    private List<PlayerStats> losers = new List<PlayerStats>();
 
     void Start()
     {
-        
         if (PhotonNetwork.IsMasterClient)
         {
             AssignRandomCards();
@@ -25,8 +23,8 @@ public class CardSelectionManager : MonoBehaviourPun
     {
         foreach (CardDisplay slot in cardSlots)
         {
-            cards randomCard = cardManager.GetRandomCard(); // Obtener una carta aleatoria
-            slot.SetCard(randomCard); // Asignar la carta al slot
+            cards randomCard = cardManager.GetRandomCard();
+            slot.SetCard(randomCard);
         }
     }
 
@@ -34,23 +32,20 @@ public class CardSelectionManager : MonoBehaviourPun
     {
         if (PhotonNetwork.IsMasterClient && losers.Count > 0)
         {
-            photonView.RPC("SetSelector", RpcTarget.AllBuffered, losers[currentSelectorIndex].ActorNumber);
+            photonView.RPC("SetSelector", RpcTarget.AllBuffered, losers[currentSelectorIndex].photonView.Owner.ActorNumber);
         }
     }
 
     [PunRPC]
     private void SetSelector(int actorNumber)
     {
-        // Comprobar si este jugador es el que le toca elegir
         if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber)
         {
             Debug.Log("Es tu turno de elegir una carta.");
-            // Habilitar UI para que este jugador pueda elegir una carta
             EnableCardSelectionUI(true);
         }
         else
         {
-            // Deshabilitar UI para los jugadores que no están eligiendo
             EnableCardSelectionUI(false);
         }
     }
@@ -65,18 +60,25 @@ public class CardSelectionManager : MonoBehaviourPun
 
     public void CardSelected(cards selectedCard)
     {
-        // Enviar la carta seleccionada al MasterClient
         photonView.RPC("ApplyCardToPlayer", RpcTarget.MasterClient, selectedCard.name);
-
-        // Pasar al siguiente jugador
         photonView.RPC("NextSelector", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
     private void ApplyCardToPlayer(string cardName)
     {
-        // Aquí puedes aplicar los efectos de la carta seleccionada
-        Debug.Log($"Carta {cardName} aplicada al jugador.");
+        // Obtén la carta seleccionada por nombre
+        cards selectedCard = cardManager.GetCardByName(cardName);
+        if (selectedCard != null)
+        {
+            PlayerStats currentPlayer = FindObjectOfType<PlayerStats>(); // Asume que tienes una forma de identificar al jugador actual
+            currentPlayer.ApplyCardEffect(selectedCard.damage, selectedCard.cooldown, (int)selectedCard.bullets);
+            Debug.Log($"Carta {cardName} aplicada al jugador.");
+        }
+        else
+        {
+            Debug.LogError("No se pudo aplicar la carta, ya que no se encontró.");
+        }
     }
 
     [PunRPC]
@@ -86,16 +88,15 @@ public class CardSelectionManager : MonoBehaviourPun
 
         if (currentSelectorIndex < losers.Count)
         {
-            photonView.RPC("SetSelector", RpcTarget.AllBuffered, losers[currentSelectorIndex].ActorNumber);
+            photonView.RPC("SetSelector", RpcTarget.AllBuffered, losers[currentSelectorIndex].photonView.Owner.ActorNumber);
         }
         else
         {
-            // Cuando todos hayan seleccionado, volver a la escena principal
             PhotonNetwork.LoadLevel("MainGameScene");
         }
     }
 
-    public void SetLosers(List<Photon.Realtime.Player> losersList)
+    public void SetLosers(List<PlayerStats> losersList)
     {
         losers = losersList;
         SetNextPlayerToSelect();

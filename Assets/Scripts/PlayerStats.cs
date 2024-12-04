@@ -5,16 +5,14 @@ using Photon.Pun;
 
 public class PlayerStats : MonoBehaviourPun
 {
-
     public int score;
-
     public float baseDamage = 10f;
     public float baseCooldown = 1f;
     public int baseBullets = 1;
-
     public float currentDamage;
     public float currentCooldown;
     public int currentBullets;
+    private bool isDead = false;
 
     void Start()
     {
@@ -24,17 +22,26 @@ public class PlayerStats : MonoBehaviourPun
         currentBullets = baseBullets;
     }
 
-    private PlayerStats FindPlayerStatsByPhotonPlayer(Photon.Realtime.Player photonPlayer)
+    public void DisableMovement()
     {
-        PlayerStats[] allPlayers = FindObjectsOfType<PlayerStats>();
-        foreach (PlayerStats playerStats in allPlayers)
+        if (!isDead)
         {
-            if (playerStats.photonView.Owner == photonPlayer) // Compara propietarios
-            {
-                return playerStats;
-            }
+            // Desactivar la capacidad de moverse
+            isDead = true;
+            GetComponent<PlayerController>().enabled = false; // Desactiva el script de control
+            Debug.Log($"{name} desactivado.");
         }
-        return null; // No se encontró un jugador con ese PhotonPlayer
+    }
+
+    public void EnableMovement()
+    {
+        if (isDead)
+        {
+            // Reactivar la capacidad de moverse
+            isDead = false;
+            GetComponent<PlayerController>().enabled = true; // Reactiva el script de control
+            Debug.Log($"{name} activado.");
+        }
     }
 
     [PunRPC]
