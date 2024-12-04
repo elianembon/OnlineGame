@@ -13,7 +13,7 @@ public class CardSelectionManager : MonoBehaviourPun
 
     void Start()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsConnected)
         {
             // Solo el Master Client genera las cartas y las distribuye a todos los jugadores
             AssignRandomCardsToPlayers();
