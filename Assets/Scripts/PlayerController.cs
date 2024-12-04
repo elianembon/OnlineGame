@@ -2,31 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     private PhotonView pv;
     private Camera playerCamera;
-    private int health = 60; // Vida inicial de la nave
 
-    [SerializeField] private Slider healthSlider; // Referencia al Slider
-     //private Vector3 cameraOffset = new Vector3(0, 0, -10);
-    [SerializeField] private float cameraFollowSpeed = 5f;
+    // Player
+    public int health = 60; // Vida inicial de la nave
     [SerializeField] private float rotationSmoothSpeed = 10f;
+
+    // Camera
+    [SerializeField] private float cameraFollowSpeed = 5f;
+
+    // HUD
+    [SerializeField] private Slider healthSlider; // Referencia al Slider
+    [SerializeField] private TextMeshProUGUI countdownText; // Texto del canvas del jugador
+
+    // Variables de sincronización de red
+    private Vector3 networkedPosition; // Posición objetivo de red
+    private Quaternion networkedRotation; // Rotación objetivo de red
+    [SerializeField] private float interpolationSpeed = 10f; // Velocidad de interpolación
 
     private void Awake()
     {
         pv = GetComponent<PhotonView>();
         playerCamera = GetComponentInChildren<Camera>();
+        countdownText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void Start()
     {
-        
-            playerCamera.gameObject.SetActive(pv.IsMine);
         if (pv.IsMine)
         {
+            playerCamera.gameObject.SetActive(true);
+
+            UiManager uiManager = FindObjectOfType<UiManager>();
+            if (uiManager != null && countdownText != null)
+            {
+                uiManager.RegisterCountdownText(countdownText);
+            }
+
             // Configurar el Slider de vida
             if (healthSlider != null)
             {
@@ -38,6 +56,12 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("No se asignó un Slider en el inspector.");
             }
         }
+        else
+        {
+            // Inicializa las variables de posición y rotación para la interpolación
+            networkedPosition = transform.position;
+            networkedRotation = transform.rotation;
+        }
     }
 
     private void Update()
@@ -45,20 +69,18 @@ public class PlayerController : MonoBehaviour
         if (pv.IsMine)
         {
             HandleMovement();
-           
-
-            // Restar vida al presionar K
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                pv.RPC("TakeDamage", RpcTarget.AllBuffered, 15);
-            }
+        }
+        else
+        {
+            // Interpolación suave hacia la posición y rotación objetivo
+            transform.position = Vector3.Lerp(transform.position, networkedPosition, Time.deltaTime * interpolationSpeed);
+            transform.rotation = Quaternion.Lerp(transform.rotation, networkedRotation, Time.deltaTime * interpolationSpeed);
         }
     }
 
     private void HandleMovement()
     {
-
-        if (!pv.IsMine) return; // Solo el propietario puede manejar su movimiento
+        if (!pv.IsMine || !GgGameManager.canMove) return; // Solo el propietario puede manejar su movimiento
 
         Vector2 direction = Vector2.zero;
 
@@ -77,6 +99,17 @@ public class PlayerController : MonoBehaviour
 
             // Sincronizar posición y rotación con otros jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+        }
+    }
+
+    [PunRPC]
+    void UpdateTransform(Vector3 newPosition, Quaternion newRotation)
+    {
+        if (!pv.IsMine)
+        {
+            // Actualiza la posición y rotación objetivo para interpolación
+            networkedPosition = newPosition;
+            networkedRotation = newRotation;
         }
     }
 
@@ -136,16 +169,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
-    [PunRPC]
-    void UpdateRotation(Quaternion rotation)
-    {
-        transform.rotation = rotation;
-    }
-
-   
-
     [PunRPC]
     void CollectCoin(int coinViewID)
     {
@@ -154,16 +177,6 @@ public class PlayerController : MonoBehaviour
         {
             PhotonNetwork.Destroy(coinPhotonView.gameObject);
             GameManager.instance.AddCoinToPool();
-        }
-    }
-
-    [PunRPC]
-    void UpdateTransform(Vector3 newPosition, Quaternion newRotation)
-    {
-        if (!pv.IsMine)
-        {
-            transform.position = newPosition;
-            transform.rotation = newRotation;
         }
     }
 }
