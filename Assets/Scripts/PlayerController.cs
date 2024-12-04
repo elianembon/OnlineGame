@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     {
         if (pv.IsMine)
         {
+            // Activa la cámara solo para el jugador propietario
             playerCamera.gameObject.SetActive(true);
 
             UiManager uiManager = FindObjectOfType<UiManager>();
@@ -58,11 +59,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Inicializa las variables de posición y rotación para la interpolación
-            networkedPosition = transform.position;
-            networkedRotation = transform.rotation;
+            // Desactiva la cámara para los jugadores no propietarios
+            playerCamera.gameObject.SetActive(false);
         }
+
+        // Inicializa las variables de posición y rotación para la interpolación
+        networkedPosition = transform.position;
+        networkedRotation = transform.rotation;
     }
+
 
     private void Update()
     {

@@ -5,4 +5,5 @@ using UnityEngine;
 public class GgGameManager : MonoBehaviour
 {
     public static bool canMove = false;
+    public static bool canShootAndPlaySone = false;
 }
