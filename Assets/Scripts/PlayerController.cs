@@ -2,44 +2,166 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     private PhotonView pv;
-    private Camera camera;
-    
+    private Camera playerCamera;
+
+    // Player
+    public int health = 60; // Vida inicial de la nave
+    [SerializeField] private float rotationSmoothSpeed = 10f;
+
+    // Camera
+    [SerializeField] private float cameraFollowSpeed = 5f;
+
+    // HUD
+    [SerializeField] private Slider healthSlider; // Referencia al Slider
+    [SerializeField] private TextMeshProUGUI countdownText; // Texto del canvas del jugador
+
+    // Variables de sincronización de red
+    private Vector3 networkedPosition; // Posición objetivo de red
+    private Quaternion networkedRotation; // Rotación objetivo de red
+    [SerializeField] private float interpolationSpeed = 10f; // Velocidad de interpolación
 
     private void Awake()
     {
         pv = GetComponent<PhotonView>();
-        camera = GetComponentInChildren<Camera>();
+        playerCamera = GetComponentInChildren<Camera>();
+        countdownText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void Start()
     {
-        camera.gameObject.SetActive(pv.IsMine);
+        if (pv.IsMine)
+        {
+            // Activa la cámara solo para el jugador propietario
+            playerCamera.gameObject.SetActive(true);
+
+            UiManager uiManager = FindObjectOfType<UiManager>();
+            if (uiManager != null && countdownText != null)
+            {
+                uiManager.RegisterCountdownText(countdownText);
+            }
+
+            // Configurar el Slider de vida
+            if (healthSlider != null)
+            {
+                healthSlider.maxValue = health;
+                healthSlider.value = health;
+            }
+            else
+            {
+                Debug.LogError("No se asignó un Slider en el inspector.");
+            }
+        }
+        else
+        {
+            // Desactiva la cámara para los jugadores no propietarios
+            playerCamera.gameObject.SetActive(false);
+        }
+
+        // Inicializa las variables de posición y rotación para la interpolación
+        networkedPosition = transform.position;
+        networkedRotation = transform.rotation;
     }
+
 
     private void Update()
     {
         if (pv.IsMine)
         {
-            if (Input.GetKey(KeyCode.W))
-            {
-                transform.position += Vector3.up * 5 * Time.deltaTime;
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                transform.position += -Vector3.up * 5 * Time.deltaTime;
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                transform.position += -Vector3.right * 5 * Time.deltaTime;
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                transform.position += Vector3.right * 5 * Time.deltaTime;
-            }
+            HandleMovement();
+        }
+        else
+        {
+            // Interpolación suave hacia la posición y rotación objetivo
+            transform.position = Vector3.Lerp(transform.position, networkedPosition, Time.deltaTime * interpolationSpeed);
+            transform.rotation = Quaternion.Lerp(transform.rotation, networkedRotation, Time.deltaTime * interpolationSpeed);
+        }
+    }
+
+    private void HandleMovement()
+    {
+        if (!pv.IsMine || !GgGameManager.canMove) return; // Solo el propietario puede manejar su movimiento
+
+        Vector2 direction = Vector2.zero;
+
+        if (Input.GetKey(KeyCode.W)) direction += Vector2.up;
+        if (Input.GetKey(KeyCode.S)) direction += Vector2.down;
+        if (Input.GetKey(KeyCode.A)) direction += Vector2.left;
+        if (Input.GetKey(KeyCode.D)) direction += Vector2.right;
+
+        if (direction != Vector2.zero)
+        {
+            transform.position += (Vector3)(direction.normalized * 5 * Time.deltaTime);
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
+
+            // Sincronizar posición y rotación con otros jugadores
+            pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+        }
+    }
+
+    [PunRPC]
+    void UpdateTransform(Vector3 newPosition, Quaternion newRotation)
+    {
+        if (!pv.IsMine)
+        {
+            // Actualiza la posición y rotación objetivo para interpolación
+            networkedPosition = newPosition;
+            networkedRotation = newRotation;
+        }
+    }
+
+    [PunRPC]
+    void UpdateHealth(int newHealth)
+    {
+        health = newHealth;
+        healthSlider.value = health;
+    }
+
+    [PunRPC]
+    void TakeDamage(int damage)
+    {
+        if (!pv.IsMine) return;
+
+        health -= damage;
+        health = Mathf.Clamp(health, 0, 60);
+
+        // Sincroniza la nueva vida con los demás jugadores
+        pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+
+        Debug.Log($"Nave {pv.Owner.NickName} recibió daño. Vida restante: {health}");
+
+        if (health <= 0)
+        {
+            Debug.Log($"Nave {pv.Owner.NickName} destruida.");
+            NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+            HandleDefeat();
+        }
+    }
+
+    private void HandleDefeat()
+    {
+        gameObject.SetActive(false); // Desactivar el jugador para simular su muerte
+        NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+    }
+
+    private void NotifyRoundManager()
+    {
+        RoundManager roundManager = FindObjectOfType<RoundManager>();
+        if (roundManager != null)
+        {
+            roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
+        }
+        else
+        {
+            Debug.LogError("No se encontró un RoundManager en la escena.");
         }
     }
 

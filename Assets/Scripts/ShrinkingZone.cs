@@ -5,42 +5,59 @@ using UnityEngine;
 
 public class ShrinkingZone : MonoBehaviour
 {
-    public float shrinkSpeed = 1f; // Aumentar para que sea más notable
-    public float minRadius = 0.5f;
-    public Vector2 finalPosition = Vector2.zero;
-    public CircleCollider2D safeZoneCollider;
+    private PhotonView pv;
+    private float shrinkSpeed = 0.1f; // Velocidad de reducción
+    private float minScale = 0.1f; // Escala mínima del objeto
+    public Vector2 finalPosition = Vector2.zero; // Posición final
 
     private void Start()
     {
-        if (safeZoneCollider == null)
+        pv = GetComponent<PhotonView>();
+        if (PhotonNetwork.IsMasterClient)
         {
-            safeZoneCollider = GetComponent<CircleCollider2D>();
+            Debug.Log("Soy el Master Client. Controlando la zona segura.");
         }
-
-        Debug.Log("Zona inicializada. Radio actual: " + safeZoneCollider.radius);
+        else
+        {
+            Debug.Log("Cliente regular. Solo observando la zona segura.");
+        }
     }
 
     private void Update()
     {
-        ShrinkZone();
+        if (PhotonNetwork.IsMasterClient && GgGameManager.canShootAndPlaySone)
+        {
+            ShrinkZone();
+        }
     }
 
     void ShrinkZone()
     {
-        if (safeZoneCollider.radius > minRadius)
+        // Reducir la escala y mover el objeto solo si la escala no es menor al mínimo
+        if (transform.localScale.x > minScale)
         {
-            // Mostrar en consola el radio antes de reducir
-            Debug.Log("Reduciendo zona. Radio actual: " + safeZoneCollider.radius);
+            // Calcular nueva escala y posición
+            Vector3 newScale = Vector3.MoveTowards(transform.localScale, Vector3.one * minScale, shrinkSpeed * Time.deltaTime);
+            Vector2 newPosition = Vector2.MoveTowards(transform.position, finalPosition, shrinkSpeed * Time.deltaTime);
 
-            safeZoneCollider.radius = Mathf.MoveTowards(safeZoneCollider.radius, minRadius, shrinkSpeed * Time.deltaTime);
-            transform.position = Vector2.MoveTowards(transform.position, finalPosition, shrinkSpeed * Time.deltaTime);
+            // Aplicar cambios localmente
+            transform.localScale = newScale;
+            transform.position = newPosition;
 
-            // Mostrar en consola el radio después de reducir
-            Debug.Log("Radio reducido a: " + safeZoneCollider.radius);
+            // Sincronizar con otros jugadores
+            pv.RPC("SyncZone", RpcTarget.Others, newScale, newPosition);
         }
         else
         {
-            Debug.Log("El radio ha alcanzado el tamaño mínimo.");
+            Debug.Log("La zona segura ha alcanzado el tamaño mínimo.");
         }
+    }
+
+    [PunRPC]
+    void SyncZone(Vector3 scale, Vector2 position)
+    {
+        // Aplicar cambios en clientes remotos
+        transform.localScale = scale;
+        transform.position = position;
     }
 }

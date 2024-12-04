@@ -20,8 +20,6 @@ public class CardDisplay : MonoBehaviour
         selectButton.onClick.AddListener(OnCardSelected);
     }
 
-    
-
     public void SetCard(cards newCard)
     {
         card = newCard;
@@ -35,6 +33,6 @@ public class CardDisplay : MonoBehaviour
     void OnCardSelected()
     {
         Debug.Log($"{card.name} selected!");
-        
+
     }
 }

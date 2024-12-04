@@ -25,7 +25,7 @@ public class MenuUI : MonoBehaviourPunCallbacks
     private void CreateRoom()
     {
         RoomOptions roomConfiguration = new RoomOptions();
-        roomConfiguration.MaxPlayers = 2;
+        roomConfiguration.MaxPlayers = 3;
         PhotonNetwork.CreateRoom(createInput.text, roomConfiguration);
     }
 
