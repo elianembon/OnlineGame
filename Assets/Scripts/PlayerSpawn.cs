@@ -6,11 +6,19 @@ using UnityEngine;
 public class PlayerSpawn : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
-    private PhotonView pv;
+    private bool isSpawned = false; // Bandera para controlar el spawn del jugador
 
     private void Start()
     {
-        pv = GetComponent<PhotonView>();
+        // Espera a recibir la señal de la pantalla de carga
+        Debug.Log("Esperando señal para instanciar al jugador...");
+    }
+
+    public void SpawnPlayer()
+    {
+        if (isSpawned) return; // Evitar instanciar más de una vez
+        isSpawned = true;
+
         PhotonNetwork.Instantiate(playerPrefab.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
@@ -24,7 +32,7 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         if (PhotonNetwork.PlayerList.Length == 3 && PhotonNetwork.IsMasterClient)
         {
             Debug.Log("Se alcanzó el número de jugadores requerido. Iniciando cuenta regresiva.");
-            pv.RPC("StartCountdown", RpcTarget.All);
+            photonView.RPC("StartCountdown", RpcTarget.All);
         }
     }
 
@@ -58,11 +66,11 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
         // Habilitar movimiento para todos los jugadores
         Debug.Log("Habilitando el movimiento para todos los jugadores.");
-        pv.RPC("EnableMovement", RpcTarget.All); // Esto activa `GgGameManager.canMove` en todos los clientes
+        photonView.RPC("EnableMovement", RpcTarget.All); // Esto activa `GgGameManager.canMove` en todos los clientes
 
         // Segunda cuenta regresiva (20 segundos)
         Debug.Log("Iniciando la segunda cuenta regresiva (zona y disparos deshabilitados).");
-        pv.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
+        photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
         for (int i = 20; i > 0; i--)
         {
             Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
@@ -73,7 +81,7 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         Debug.Log("Segunda cuenta regresiva finalizada. Habilitando disparos y reducción de zona.");
         uiManager.UpdateCountdown(0);
 
-        pv.RPC("RestrictActions", RpcTarget.All, false); // Habilita disparos y zona
+        photonView.RPC("RestrictActions", RpcTarget.All, false); // Habilita disparos y zona
     }
 
     [PunRPC]
