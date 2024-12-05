@@ -200,9 +200,14 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
             HandleDefeat();
+
+            // Asegurarse de que solo el jugador cuya nave ha sido destruida se desconecte
+            if (pv.IsMine)
+            {
+                DisconnectPlayer();
+            }
         }
     }
-
 
 
     private void HandleDefeat()
@@ -254,6 +259,19 @@ public class PlayerController : MonoBehaviour
 
         }
     }
+
+    [PunRPC]
+    public void DisconnectPlayer()
+    {
+        // Asegurarse de que solo el jugador que ha muerto realice la desconexión
+        if (PhotonNetwork.IsConnected && pv.IsMine)
+        {
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.LoadLevel("Menu");
+            Debug.Log("Jugador desconectado de la sala.");
+        }
+    }
+
 }
 
 
