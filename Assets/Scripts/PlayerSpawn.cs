@@ -11,10 +11,15 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     private void Start()
     {
         pv = GetComponent<PhotonView>();
+        string playerID = PhotonNetwork.NickName;
+
+        // Cargar estadísticas del jugador al inicio
+        PlayerStatsManager.Instance.LoadStats(playerID);
+
         PhotonNetwork.Instantiate(playerPrefab.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)

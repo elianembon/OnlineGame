@@ -121,7 +121,7 @@ public class CardSelectionManager : MonoBehaviourPun
         }
         else
         {
-            PhotonNetwork.LoadLevel("MainGameScene");
+            PhotonNetwork.LoadLevel("Gameplay");
         }
     }
 
