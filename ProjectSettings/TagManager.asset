@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - SafeZone
+  - Destructible
   layers:
   - Default
   - TransparentFX
@@ -47,6 +48,9 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 916577763
+    locked: 0
+  - name: Objects
+    uniqueID: 2385617239
     locked: 0
   - name: Bullet
     uniqueID: 355862981
