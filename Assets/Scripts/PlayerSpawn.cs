@@ -11,18 +11,16 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        pv = GetComponent<PhotonView>();
         string playerID = PhotonNetwork.NickName;
-        PlayerStats stats = PlayerStatsManager.Instance.FindPlayerStatsByPlayerID(playerID);
 
-        if (stats != null)
-        {
-            Debug.Log($"Cargando estadísticas para: {playerID}");
-            Debug.Log($"Damage: {stats.currentDamage}, Cooldown: {stats.currentCooldown}, Bullets: {stats.currentBullets}");
-        }
-        else
-        {
-            Debug.LogError($"No se encontraron estadísticas para el jugador {playerID}");
-        }
+        // Cargar estadísticas del jugador al inicio
+        //PlayerStatsManager.Instance.LoadStats(playerID);
+
+        PhotonNetwork.Instantiate(playerPrefab.name,
+            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
+
+        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
     }
 
     public void SpawnPlayer()

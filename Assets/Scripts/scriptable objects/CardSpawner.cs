@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class CardSpawner : MonoBehaviour
 {
-    public CardManager cardManager;
-    public CardDisplay[] cardSlots;
+    //public CardManager cardManager;
+    //public CardDisplay[] cardSlots;
 
-    void Start()
-    {
+    //void Start()
+    //{
 
-        foreach (CardDisplay slot in cardSlots)
-        {
-            cards randomCard = cardManager.GetRandomCard();
-            slot.SetCard(randomCard);
-        }
-    }
+    //    foreach (CardDisplay slot in cardSlots)
+    //    {
+    //        cards randomCard = cardManager.GetRandomCard();
+    //        slot.SetCard(randomCard);
+    //    }
+    //}
 }

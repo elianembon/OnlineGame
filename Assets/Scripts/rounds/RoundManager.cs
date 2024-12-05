@@ -6,107 +6,67 @@ using Photon.Realtime;
 
 public class RoundManager : MonoBehaviourPun
 {
-    public List<PlayerStats> losers = new List<PlayerStats>();
-    public int winnerScore = 0;
+    private Dictionary<string, int> playerRoundWins = new Dictionary<string, int>();  // Guardar el conteo de rondas ganadas por cada jugador
+    private List<Photon.Realtime.Player> playersInRound = new List<Photon.Realtime.Player>();  // Jugadores activos en la ronda
 
+    void Start()
+    {
+        // Registrar a los jugadores que participan en la ronda
+        playersInRound.AddRange(PhotonNetwork.PlayerList);
+    }
+
+    // Método para registrar cuando un jugador ha sido derrotado
     [PunRPC]
-    public void PlayerDefeated(Photon.Realtime.Player photonPlayer)
+    public void PlayerDefeated(Photon.Realtime.Player player)
     {
-        PlayerStats playerStats = FindPlayerStatsByPhotonPlayer(photonPlayer);
-        if (playerStats == null)
+        playersInRound.Remove(player); // El jugador derrotado es eliminado de la lista
+
+        if (playersInRound.Count == 1)  // Si solo queda un jugador, significa que ese jugador ganó la ronda
         {
-            Debug.LogError($"No se encontró PlayerStats para el jugador {photonPlayer.NickName}.");
-            return;
-        }
-
-        if (!losers.Contains(playerStats))
-        {
-            losers.Add(playerStats);
-            Debug.Log($"Jugador {playerStats.name} agregado a la lista de perdedores.");
-
-            photonView.RPC("UpdateLosersList", RpcTarget.All, playerStats.photonView.Owner.ActorNumber);
-
-            if (losers.Count == 2) // Si dos jugadores perdieron
-            {
-                EndRound();
-            }
-        }
-    }
-    private void EndRound()
-    {
-        Debug.Log($"Ronda terminada.");
-
-        // Mandamos a los jugadores a la selección de cartas
-        CardSelectionManager cardSelectionManager = FindObjectOfType<CardSelectionManager>();
-        if (cardSelectionManager != null)
-        {
-            cardSelectionManager.SetLosers(losers); // Pasa la lista de perdedores al CardSelectionManager
-        }
-
-        // Enviar a los perdedores a la escena "PickMejora"
-        photonView.RPC("SendToCardSelection", RpcTarget.All, losers[0].photonView.Owner.ActorNumber, losers[1].photonView.Owner.ActorNumber);
-    }
-
-    private PlayerStats FindPlayerStatsByActorNumber(int actorNumber)
-    {
-        PlayerStats[] allPlayers = FindObjectsOfType<PlayerStats>();
-        foreach (PlayerStats playerStats in allPlayers)
-        {
-            if (playerStats.photonView.Owner.ActorNumber == actorNumber)
-            {
-                return playerStats;
-            }
-        }
-        return null; // Si no se encuentra, devuelve null
-    }
-
-    [PunRPC]
-    private void UpdateLosersList(int actorNumber)
-    {
-        // Obtener el PlayerStats correspondiente al actorNumber
-        PlayerStats playerStats = FindPlayerStatsByActorNumber(actorNumber);
-        if (playerStats != null && !losers.Contains(playerStats))
-        {
-            losers.Add(playerStats);
+            PlayerWins(playersInRound[0]);
         }
     }
 
-    [PunRPC]
-    private void SendToCardSelection(int firstLoserActor, int secondLoserActor)
+    // Método para registrar cuando un jugador gana la ronda
+    private void PlayerWins(Photon.Realtime.Player winner)
     {
-        if (PhotonNetwork.LocalPlayer.ActorNumber == firstLoserActor || PhotonNetwork.LocalPlayer.ActorNumber == secondLoserActor)
+        // Aumentar el conteo de rondas ganadas para el ganador
+        if (playerRoundWins.ContainsKey(winner.NickName))
         {
-            PhotonNetwork.LoadLevel("PickMejora");
+            playerRoundWins[winner.NickName]++;
         }
-    }
+        else
+        {
+            playerRoundWins.Add(winner.NickName, 1);
+        }
 
-    public void IncrementScore(PlayerStats winner)
-    {
-        winnerScore++;
-        if (winnerScore >= 3)
+        Debug.Log($"{winner.NickName} ha ganado la ronda. Rondas ganadas: {playerRoundWins[winner.NickName]}");
+
+        // Verificar si algún jugador ha ganado 3 rondas
+        if (playerRoundWins[winner.NickName] >= 3)
         {
             EndGame(winner);
         }
-    }
-
-    private void EndGame(PlayerStats winner)
-    {
-        // Fin del juego
-        Debug.Log($"Juego terminado. Ganador: {winner.name}");
-        // Aquí puedes hacer que el juego termine o lo que desees
-    }
-
-    private PlayerStats FindPlayerStatsByPhotonPlayer(Photon.Realtime.Player photonPlayer)
-    {
-        PlayerStats[] allPlayers = Resources.FindObjectsOfTypeAll<PlayerStats>(); // Busca incluso en objetos desactivados
-        foreach (PlayerStats playerStats in allPlayers)
+        else
         {
-            if (playerStats.photonView != null && playerStats.photonView.Owner == photonPlayer)
-            {
-                return playerStats;
-            }
+            // Reiniciar la ronda
+            ResetRound();
         }
-        return null; // Si no se encuentra, devuelve null
+    }
+
+    // Método para finalizar el juego cuando un jugador gana 3 rondas
+    private void EndGame(Photon.Realtime.Player winner)
+    {
+        Debug.Log($"{winner.NickName} ha ganado el juego!");
+        PhotonNetwork.LoadLevel("GameFinish"); // Cargar la escena de fin de juego
+    }
+
+    // Método para reiniciar la ronda
+    private void ResetRound()
+    {
+        // Reiniciar la lista de jugadores para la siguiente ronda
+        playersInRound.Clear();
+        playersInRound.AddRange(PhotonNetwork.PlayerList);
     }
 
 }
