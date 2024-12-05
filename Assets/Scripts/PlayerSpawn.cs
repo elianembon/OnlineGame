@@ -82,7 +82,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
         for (int i = 20; i > 0; i--)
         {
-            Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }

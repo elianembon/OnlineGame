@@ -24,6 +24,8 @@ public class ReconnectMenu : MonoBehaviourPunCallbacks
         StartCoroutine(WaitBeforeStartGame());
     }
 
+
+
     private IEnumerator WaitBeforeStartGame()
     {
         Debug.Log("Esperando 5 segundos antes de iniciar...");
