@@ -11,20 +11,19 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        pv = GetComponent<PhotonView>();
-        PhotonNetwork.Instantiate(playerPrefab.name,
-            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
-
-        // Asignar el playerID cuando se conecte un jugador
         string playerID = PhotonNetwork.NickName;
-        Debug.Log($"Jugador {playerID} conectado.");
-    }
+        PlayerStats stats = PlayerStatsManager.Instance.FindPlayerStatsByPlayerID(playerID);
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
+        if (stats != null)
+        {
+            Debug.Log($"Cargando estadísticas para: {playerID}");
+            Debug.Log($"Damage: {stats.currentDamage}, Cooldown: {stats.currentCooldown}, Bullets: {stats.currentBullets}");
+        }
+        else
+        {
+            Debug.LogError($"No se encontraron estadísticas para el jugador {playerID}");
+        }
     }
-
 
     public void SpawnPlayer()
     {
@@ -35,6 +34,17 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
         Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
+
+        if (PhotonNetwork.PlayerList.Length == 3 && PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Se alcanzó el número de jugadores requerido. Iniciando cuenta regresiva.");
+            photonView.RPC("StartCountdown", RpcTarget.All);
+        }
     }
 
     [PunRPC]
@@ -74,7 +84,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
         for (int i = 20; i > 0; i--)
         {
-            Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }

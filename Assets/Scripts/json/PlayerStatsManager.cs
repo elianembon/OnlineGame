@@ -13,66 +13,63 @@ public class PlayerStatsManager : MonoBehaviour
 
     private void Start()
     {
-        // Establecer la carpeta donde se guardarán los archivos de estadísticas.
-        playerStatsFolder = Path.Combine(Application.persistentDataPath, "Stats");
-
-        // Crear la carpeta si no existe
-        if (!Directory.Exists(playerStatsFolder))
+        // Verifica que la instancia de PlayerStatsManager existe
+        if (Instance == null)
         {
-            Directory.CreateDirectory(playerStatsFolder);
-            Debug.Log("Carpeta de estadísticas creada correctamente.");
+            Instance = this;
         }
 
-        // Asegúrate de que cada jugador tiene su archivo de estadísticas.
+        // Carga las estadísticas directamente desde PlayerStats
         string playerID = PhotonNetwork.NickName;
-        PlayersStats stats = LoadStats(playerID);
+        PlayerStats stats = FindPlayerStatsByPlayerID(playerID);
 
-        Debug.Log($"Cargando estadísticas para: {playerID}");
-        Debug.Log($"Damage: {stats.damage}, Cooldown: {stats.cooldown}, Bullets: {stats.bullets}");
-    }
-
-    public PlayersStats LoadStats(string playerID)
-    {
-        string filePath = Path.Combine(playerStatsFolder, $"{playerID}.json");
-
-        if (File.Exists(filePath))
+        if (stats != null)
         {
-            string json = File.ReadAllText(filePath);
-            PlayersStats stats = JsonUtility.FromJson<PlayersStats>(json);
-            return stats;
+            Debug.Log($"Cargando estadísticas para: {playerID}");
+            Debug.Log($"Damage: {stats.currentDamage}, Cooldown: {stats.currentCooldown}, Bullets: {stats.currentBullets}");
         }
         else
         {
-            Debug.LogWarning($"No se encontró el archivo de estadísticas para el jugador {playerID}. Creando estadísticas predeterminadas.");
-            return new PlayersStats();  // Si no existe el archivo, crea una nueva instancia con valores predeterminados
+            Debug.LogError($"No se encontraron estadísticas para el jugador {playerID}");
         }
     }
 
-    public void SaveStats(string playerID, PlayersStats stats)
+    public PlayerStats FindPlayerStatsByPlayerID(string playerID)
     {
-        string filePath = Path.Combine(playerStatsFolder, $"{playerID}.json");
-        string json = JsonUtility.ToJson(stats, true);
-        File.WriteAllText(filePath, json);
-        Debug.Log($"Estadísticas guardadas para {playerID}.");
+        PlayerStats[] allPlayers = FindObjectsOfType<PlayerStats>();
+        foreach (PlayerStats playerStats in allPlayers)
+        {
+            if (playerStats.photonView.Owner.NickName == playerID)
+            {
+                return playerStats;
+            }
+        }
+        return null; // Si no se encuentra, devuelve null
     }
 
+    // Método para actualizar estadísticas
     public void UpdateStat(string playerID, string statName, float value)
     {
-        PlayersStats stats = LoadStats(playerID);
+        PlayerStats stats = FindPlayerStatsByPlayerID(playerID);
+        if (stats == null)
+        {
+            Debug.LogError($"No se encontraron estadísticas para el jugador {playerID}");
+            return;
+        }
 
         switch (statName)
         {
             case "damage":
-                stats.damage = value;
+                stats.currentDamage = value;
                 break;
             case "cooldown":
-                stats.cooldown = value;
+                stats.currentCooldown = value;
                 break;
             case "bullets":
-                stats.bullets = (int)value;
+                stats.currentBullets = (int)value;
                 break;
         }
 
-        SaveStats(playerID, stats);
+        Debug.Log($"Estadísticas de {playerID} actualizadas: Damage: {stats.currentDamage}, Cooldown: {stats.currentCooldown}, Bullets: {stats.currentBullets}");
     }
 }
