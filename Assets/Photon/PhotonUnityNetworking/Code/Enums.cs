@@ -62,7 +62,8 @@ namespace Photon.Pun
         /// This client executes the RPC like any other when it received it from the server.
         /// Benefit: The server's order of sending the RPCs is the same on all clients.
         /// </remarks>
-        AllBufferedViaServer
+        AllBufferedViaServer,
+        Owner
     }
 
 

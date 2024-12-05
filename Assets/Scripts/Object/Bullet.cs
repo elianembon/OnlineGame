@@ -22,33 +22,42 @@ public class Bullet : MonoBehaviour
         // Movimiento constante hacia adelante.
         transform.position += transform.right * speed * Time.deltaTime;
 
-        // Detectar colisión con jugadores.
+        // Detectar colisiones.
         CheckCollision();
     }
 
     private void CheckCollision()
     {
+        // Detectar colisión con jugadores.
         foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
         {
             PhotonView playerView = player.GetComponent<PhotonView>();
-
-            // Verifica que el jugador no sea nulo y que tenga un PhotonView.
-            if (playerView != null)
+            if (playerView != null && CircleRectangleCollision(transform.position, radius, player.transform.position, player.transform.localScale))
             {
-                Vector3 playerPosition = player.transform.position;
-                Vector3 bulletPosition = transform.position;
-
-                // Detecta colisión entre el círculo (bala) y el rectángulo (jugador).
-                if (CircleRectangleCollision(bulletPosition, radius, playerPosition, player.transform.localScale))
-                {
-                    // Llama a TakeDamage en el jugador correspondiente.
-                    playerView.RPC("TakeDamage", RpcTarget.AllBuffered, 10); // Aplica 10 de daño.
-
-                    // Destruye la bala.
-                    DestroyBullet();
-                    break;
-                }
+                ApplyDamage(playerView, 10); // Aplica 10 de daño.
+                DestroyBullet();
+                return;
             }
+        }
+
+        // Detectar colisión con objetos destructibles.
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Destructible"))
+        {
+            PhotonView objectView = obj.GetComponent<PhotonView>();
+            if (objectView != null && CircleRectangleCollision(transform.position, radius, obj.transform.position, obj.transform.localScale))
+            {
+                ApplyDamage(objectView, 10); // Aplica 10 de daño.
+                DestroyBullet();
+                return;
+            }
+        }
+    }
+
+    private void ApplyDamage(PhotonView targetView, int damage)
+    {
+        if (PhotonNetwork.IsMasterClient) // Solo el MasterClient envía el RPC.
+        {
+            targetView.RPC("TakeDamage", RpcTarget.AllBuffered, damage);
         }
     }
 
@@ -56,23 +65,18 @@ public class Bullet : MonoBehaviour
     {
         if (PhotonNetwork.IsConnected)
         {
-            // Usa PhotonNetwork.Destroy para sincronizar la destrucción con todos los clientes.
             PhotonNetwork.Destroy(gameObject);
         }
         else
         {
-            // En caso de no estar conectado a Photon, usa Destroy normal (modo offline).
             Destroy(gameObject);
         }
     }
 
     private bool CircleRectangleCollision(Vector3 circlePos, float circleRadius, Vector3 rectPos, Vector3 rectSize)
     {
-        // Calcula la distancia más cercana entre el círculo y el rectángulo.
         float dx = Mathf.Max(rectPos.x - rectSize.x / 2, Mathf.Min(circlePos.x, rectPos.x + rectSize.x / 2));
         float dy = Mathf.Max(rectPos.y - rectSize.y / 2, Mathf.Min(circlePos.y, rectPos.y + rectSize.y / 2));
-
-        // Comprueba si la distancia entre el círculo y el punto más cercano es menor al radio del círculo.
         return (circlePos.x - dx) * (circlePos.x - dx) + (circlePos.y - dy) * (circlePos.y - dy) < circleRadius * circleRadius;
     }
 }
