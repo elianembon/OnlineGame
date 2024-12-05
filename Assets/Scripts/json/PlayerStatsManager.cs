@@ -2,92 +2,77 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Photon.Pun;
+using System;
 
 public class PlayerStatsManager : MonoBehaviour
 {
+    private string playerStatsFolder;
     public static PlayerStatsManager Instance;
     private string statsDirectory;
-    private Dictionary<string, PlayersStats> playerStatsDictionary;
 
-    private void Awake()
+    private void Start()
     {
-        // Singleton para acceso global
-        if (Instance == null)
+        // Establecer la carpeta donde se guardarán los archivos de estadísticas.
+        playerStatsFolder = Path.Combine(Application.persistentDataPath, "Stats");
+
+        // Crear la carpeta si no existe
+        if (!Directory.Exists(playerStatsFolder))
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
+            Directory.CreateDirectory(playerStatsFolder);
+            Debug.Log("Carpeta de estadísticas creada correctamente.");
         }
 
-        statsDirectory = Application.persistentDataPath + "/PlayersStats/";
-        playerStatsDictionary = new Dictionary<string, PlayersStats>();
+        // Asegúrate de que cada jugador tiene su archivo de estadísticas.
+        string playerID = PhotonNetwork.NickName;
+        PlayersStats stats = LoadStats(playerID);
 
-        // Crear directorio si no existe
-        if (!Directory.Exists(statsDirectory))
-            Directory.CreateDirectory(statsDirectory);
+        Debug.Log($"Cargando estadísticas para: {playerID}");
+        Debug.Log($"Damage: {stats.damage}, Cooldown: {stats.cooldown}, Bullets: {stats.bullets}");
     }
 
-    public void LoadStats(string playerID)
+    public PlayersStats LoadStats(string playerID)
     {
-        string filePath = statsDirectory + playerID + ".json";
+        string filePath = Path.Combine(playerStatsFolder, $"{playerID}.json");
 
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            playerStatsDictionary[playerID] = JsonUtility.FromJson<PlayersStats>(json);
+            PlayersStats stats = JsonUtility.FromJson<PlayersStats>(json);
+            return stats;
         }
         else
         {
-            // Crear estadísticas por defecto si el archivo no existe
-            PlayersStats defaultStats = new PlayersStats
-            {
-                damage = 10.0f,
-                cooldown = 1.5f,
-                bullets = 25
-            };
-            playerStatsDictionary[playerID] = defaultStats;
-            SaveStats(playerID);
+            Debug.LogWarning($"No se encontró el archivo de estadísticas para el jugador {playerID}. Creando estadísticas predeterminadas.");
+            return new PlayersStats();  // Si no existe el archivo, crea una nueva instancia con valores predeterminados
         }
     }
 
-    public void SaveStats(string playerID)
+    public void SaveStats(string playerID, PlayersStats stats)
     {
-        if (playerStatsDictionary.TryGetValue(playerID, out PlayersStats stats))
-        {
-            string json = JsonUtility.ToJson(stats, true);
-            File.WriteAllText(statsDirectory + playerID + ".json", json);
-        }
-    }
-
-    public PlayersStats GetStats(string playerID)
-    {
-        if (playerStatsDictionary.TryGetValue(playerID, out PlayersStats stats))
-            return stats;
-
-        return null;
+        string filePath = Path.Combine(playerStatsFolder, $"{playerID}.json");
+        string json = JsonUtility.ToJson(stats, true);
+        File.WriteAllText(filePath, json);
+        Debug.Log($"Estadísticas guardadas para {playerID}.");
     }
 
     public void UpdateStat(string playerID, string statName, float value)
     {
-        if (playerStatsDictionary.TryGetValue(playerID, out PlayersStats stats))
+        PlayersStats stats = LoadStats(playerID);
+
+        switch (statName)
         {
-            switch (statName)
-            {
-                case "damage":
-                    stats.damage = value;
-                    break;
-                case "cooldown":
-                    stats.cooldown = value;
-                    break;
-                case "bullets":
-                    stats.bullets = (int)value;
-                    break;
-            }
-            SaveStats(playerID);
+            case "damage":
+                stats.damage = value;
+                break;
+            case "cooldown":
+                stats.cooldown = value;
+                break;
+            case "bullets":
+                stats.bullets = (int)value;
+                break;
         }
+
+        SaveStats(playerID, stats);
     }
 }

@@ -12,16 +12,19 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     private void Start()
     {
         pv = GetComponent<PhotonView>();
-        string playerID = PhotonNetwork.NickName;
-
-        // Cargar estadísticas del jugador al inicio
-        PlayerStatsManager.Instance.LoadStats(playerID);
-
         PhotonNetwork.Instantiate(playerPrefab.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        // Asignar el playerID cuando se conecte un jugador
+        string playerID = PhotonNetwork.NickName;
+        Debug.Log($"Jugador {playerID} conectado.");
     }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
+    }
+
 
     public void SpawnPlayer()
     {
@@ -32,17 +35,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
         Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total: {PhotonNetwork.PlayerList.Length}");
-    }
-
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
-
-        if (PhotonNetwork.PlayerList.Length == 3 && PhotonNetwork.IsMasterClient)
-        {
-            Debug.Log("Se alcanzó el número de jugadores requerido. Iniciando cuenta regresiva.");
-            photonView.RPC("StartCountdown", RpcTarget.All);
-        }
     }
 
     [PunRPC]
