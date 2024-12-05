@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class RandomAp : MonoBehaviour
 {
-    public GameObject thing;
+    public List<GameObject> things; // Lista de objetos a instanciar
     public Vector2 spawnAreaMin; //segun el tamaño actual del mapa, seria x: -160 y y: -65
     public Vector2 spawnAreaMax; //segun el tamaño actual del mapa, seria x: 170 y y: 75
-
+    public int spawnCount;
     /*public int spawnCount;
     public int spawnCountMax;*/
 
@@ -19,39 +19,19 @@ public class RandomAp : MonoBehaviour
 
     void SpawnObjRm()
     {
-        /*if(spawnCount < spawnCountMax)
-        {*/
+        for (int i = 0; i < spawnCount; i++) // Generar "spawnCount" objetos
+        {
+            // Seleccionar un objeto aleatorio de la lista
+            GameObject randomThing = things[Random.Range(0, things.Count)];
+
             float randomX = Random.Range(spawnAreaMin.x, spawnAreaMax.x);
             float randomY = Random.Range(spawnAreaMin.y, spawnAreaMax.y);
-
             Vector2 randPos = new Vector2(randomX, randomY);
 
-        PhotonNetwork.Instantiate(thing.name, randPos, Quaternion.identity);
-
-        /*  spawnCount++;
-      }
-      else
-      {
-          Debug.Log("No mas power ups");
-      }
-
-      */
-    }
-    /*Para cuando obj aparezca en otro lado al ser consumido
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            Destroy(gameObject);
-            PhotonNetwork.Destroy (photonView) (para que funcione tiene que ser un MonobehaviorPun)
-
-       if (spawnCount < spawnCountMax)
-            {
-                Invoke("SpawnObjRm", 0.5f);
-            }
-
+            PhotonNetwork.Instantiate(randomThing.name, randPos, Quaternion.identity);
         }
-
-    }*/
+  
+    }
+  
 
 }
