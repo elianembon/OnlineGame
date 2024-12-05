@@ -25,7 +25,7 @@ public class ShrinkingZone : MonoBehaviour
 
     private void Update()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && GgGameManager.canShootAndPlaySone)
         {
             ShrinkZone();
         }

@@ -32,6 +32,12 @@ public class Shoot : MonoBehaviour
 
     private void Shooting()
     {
+        if (!GgGameManager.canShootAndPlaySone)
+        {
+            Debug.Log("No se puede disparar en este momento.");
+            return;
+        }
+
         if (bulletPrefab != null && bulletSpawnPoint != null)
         {
             // Instancia la bala usando PhotonNetwork para sincronizarla en todos los jugadores.

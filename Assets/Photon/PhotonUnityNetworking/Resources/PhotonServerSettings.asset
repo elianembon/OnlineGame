@@ -55,12 +55,7 @@ MonoBehaviour:
   - SyncZone
   - EnableMovement
   - StartCountdown
-  - PlayerDefeated
-  - SyncCardWithAllPlayers
-  - AssignCardToPlayer
-  - NotifyCardSelection
-  - LoadGameplayScene
-  - NotifySelectionComplete
+  - RestrictActions
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
