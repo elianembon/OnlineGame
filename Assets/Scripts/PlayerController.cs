@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
 
     // Player
     public int health = 60; // Vida inicial de la nave
+    public int maxHealth = 60; // Vida máxima inicial
     [SerializeField] private float rotationSmoothSpeed = 10f;
     private bool isOutsideSafeZone = false; // Indica si el jugador está fuera de la zona segura
 
@@ -135,10 +136,49 @@ public class PlayerController : MonoBehaviour
     }
 
     [PunRPC]
+    void HealPlayerCurrentHealth(int amount)
+    {
+        if (!pv.IsMine) return;
+
+        // Incrementar solo la vida actual, sin afectar la vida máxima
+        health += amount;
+        health = Mathf.Clamp(health, 0, maxHealth); // Asegurarse de no exceder el límite máximo.
+
+        // Actualizar el HUD
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+        }
+
+        Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+    }
+
+    [PunRPC]
     void UpdateHealth(int newHealth)
     {
         health = newHealth;
-        healthSlider.value = health;
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth; // Actualiza el límite del slider de vida
+            healthSlider.value = health;
+        }
+    }
+
+    [PunRPC]
+    void IncreaseMaxHealthOnly(int amount)
+    {
+        if (!pv.IsMine) return;
+
+        // Incrementar solo la vida máxima, sin afectar la vida actual
+        maxHealth += amount;
+
+        // Actualizar el HUD para reflejar la nueva vida máxima
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+        }
+
+        Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
 
     [PunRPC]
@@ -152,7 +192,7 @@ public class PlayerController : MonoBehaviour
         // Sincroniza la nueva vida con los demás jugadores
         pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
 
-        
+
 
         if (health <= 0)
         {
@@ -186,7 +226,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = true;
-            
+
         }
     }
 
@@ -195,7 +235,9 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = false;
-            
+
         }
     }
 }
+
+

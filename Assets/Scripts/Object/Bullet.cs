@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
+
 public class Bullet : MonoBehaviour
 {
 

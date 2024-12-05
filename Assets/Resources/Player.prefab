@@ -356,7 +356,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e66f0dec1ad9924aa6a46d640a2e079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 0}
   health: 60
+  maxHealth: 60
+  bulletDamage: 10
   rotationSmoothSpeed: 10
   cameraFollowSpeed: 5
   healthSlider: {fileID: 8379667488757525622}
