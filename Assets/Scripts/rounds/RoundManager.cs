@@ -7,7 +7,7 @@ using Photon.Realtime;
 public class RoundManager : MonoBehaviourPun
 {
     private Dictionary<string, int> playerRoundWins = new Dictionary<string, int>();  // Guardar el conteo de rondas ganadas por cada jugador
-    public List<Photon.Realtime.Player> playersInRound = new List<Photon.Realtime.Player>();  // Jugadores activos en la ronda
+    private List<Photon.Realtime.Player> playersInRound = new List<Photon.Realtime.Player>();  // Jugadores activos en la ronda
 
     void Start()
     {
