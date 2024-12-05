@@ -150,16 +150,17 @@ public class PlayerController : MonoBehaviour
             healthSlider.value = health;
         }
 
-        Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+        //Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
 
     [PunRPC]
     void UpdateHealth(int newHealth)
     {
         health = newHealth;
+
         if (healthSlider != null)
         {
-            healthSlider.maxValue = maxHealth; // Actualiza el límite del slider de vida
+            healthSlider.maxValue = maxHealth;
             healthSlider.value = health;
         }
     }
@@ -178,48 +179,63 @@ public class PlayerController : MonoBehaviour
             healthSlider.maxValue = maxHealth;
         }
 
-        Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+       // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
-
     [PunRPC]
     void TakeDamage(int damage)
     {
-        if (!pv.IsMine) return;
-
         health -= damage;
-        health = Mathf.Clamp(health, 0, 60);
+        health = Mathf.Clamp(health, 0, maxHealth);
 
-        // Sincroniza la nueva vida con los demás jugadores
+        // Sincronizar la nueva vida con los demás jugadores
         pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
 
-
+        // Actualizar el Slider local
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+        }
 
         if (health <= 0)
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
-            NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
             HandleDefeat();
         }
     }
 
+
+
     private void HandleDefeat()
     {
+        if (PhotonNetwork.IsConnected && pv.IsMine)
+        {
+            // Notificar a los demás jugadores que este jugador ha sido eliminado
+            pv.RPC("NotifyPlayerDefeated", RpcTarget.AllBuffered, pv.Owner.NickName);
+        }
+
         gameObject.SetActive(false); // Desactivar el jugador para simular su muerte
-        NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+        //NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
     }
 
-    private void NotifyRoundManager()
+    [PunRPC]
+    void NotifyPlayerDefeated(string playerName)
     {
-        RoundManager roundManager = FindObjectOfType<RoundManager>();
-        if (roundManager != null)
-        {
-            roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
-        }
-        else
-        {
-            Debug.LogError("No se encontró un RoundManager en la escena.");
-        }
+        Debug.Log($"El jugador {playerName} ha sido eliminado.");
     }
+
+
+    //private void NotifyRoundManager()
+    //{
+    //    RoundManager roundManager = FindObjectOfType<RoundManager>();
+    //    if (roundManager != null)
+    //    {
+    //        roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("No se encontró un RoundManager en la escena.");
+    //    }
+    //}
 
     private void OnTriggerExit2D(Collider2D other)
     {

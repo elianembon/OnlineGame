@@ -8,36 +8,40 @@ using Photon.Realtime;
 public class Bullet : MonoBehaviour
 {
 
-    [SerializeField] private float speed = 10f; // Velocidad de la bala.
-    [SerializeField] private float radius = 0.2f; // Radio de la bala para detección de colisiones.
-    [SerializeField] private float lifetime = 5f; // Tiempo de vida de la bala antes de destruirse.
+    [SerializeField] private float speed = 10f;
+    [SerializeField] private float radius = 0.2f;
+    [SerializeField] private float lifetime = 5f;
 
     private void Start()
     {
-        // Destruir la bala automáticamente después del tiempo de vida.
         Destroy(gameObject, lifetime);
     }
 
     private void Update()
     {
-        // Movimiento constante hacia adelante.
         transform.position += transform.right * speed * Time.deltaTime;
-
-        // Detectar colisiones.
         CheckCollision();
     }
 
     private void CheckCollision()
     {
-        // Detectar colisión con jugadores.
-        foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
+        PhotonView pv = GetComponent<PhotonView>();
+
+        if (pv != null && !pv.IsMine) return; // Solo el propietario de la bala procesa la colisión.
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
+
+        foreach (Collider2D hit in hits)
         {
-            PhotonView playerView = player.GetComponent<PhotonView>();
-            if (playerView != null && CircleRectangleCollision(transform.position, radius, player.transform.position, player.transform.localScale))
+            if (hit.CompareTag("Player"))
             {
-                ApplyDamage(playerView, 10); // Aplica 10 de daño.
-                DestroyBullet();
-                return;
+                PhotonView playerView = hit.GetComponent<PhotonView>();
+                if (playerView != null)
+                {
+                    ApplyDamage(playerView, 10);
+                    DestroyBullet();
+                    return;
+                }
             }
         }
 
@@ -45,6 +49,7 @@ public class Bullet : MonoBehaviour
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Destructible"))
         {
             PhotonView objectView = obj.GetComponent<PhotonView>();
+            ObjectsHealth healthComponent = obj.GetComponent<ObjectsHealth>();
             if (objectView != null && CircleRectangleCollision(transform.position, radius, obj.transform.position, obj.transform.localScale))
             {
                 ApplyDamage(objectView, 10); // Aplica 10 de daño.
@@ -56,7 +61,7 @@ public class Bullet : MonoBehaviour
 
     private void ApplyDamage(PhotonView targetView, int damage)
     {
-        if (PhotonNetwork.IsMasterClient) // Solo el MasterClient envía el RPC.
+        if (targetView != null)
         {
             targetView.RPC("TakeDamage", RpcTarget.AllBuffered, damage);
         }
@@ -64,7 +69,9 @@ public class Bullet : MonoBehaviour
 
     private void DestroyBullet()
     {
-        if (PhotonNetwork.IsConnected)
+        PhotonView pv = GetComponent<PhotonView>();
+
+        if (PhotonNetwork.IsConnected && pv != null && pv.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
         }
@@ -74,10 +81,12 @@ public class Bullet : MonoBehaviour
         }
     }
 
+
     private bool CircleRectangleCollision(Vector3 circlePos, float circleRadius, Vector3 rectPos, Vector3 rectSize)
     {
         float dx = Mathf.Max(rectPos.x - rectSize.x / 2, Mathf.Min(circlePos.x, rectPos.x + rectSize.x / 2));
         float dy = Mathf.Max(rectPos.y - rectSize.y / 2, Mathf.Min(circlePos.y, rectPos.y + rectSize.y / 2));
         return (circlePos.x - dx) * (circlePos.x - dx) + (circlePos.y - dy) * (circlePos.y - dy) < circleRadius * circleRadius;
     }
+
 }

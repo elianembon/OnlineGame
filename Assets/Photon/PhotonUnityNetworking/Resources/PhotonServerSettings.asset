@@ -63,6 +63,7 @@ MonoBehaviour:
   - HealPlayerCurrentHealth
   - IncreaseMaxHealthOnly
   - IncreaseBulletDamage
+  - NotifyPlayerDefeated
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

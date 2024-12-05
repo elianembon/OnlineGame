@@ -6,7 +6,7 @@ using UnityEngine;
 public class ShrinkingZone : MonoBehaviour
 {
     private PhotonView pv;
-    private float shrinkSpeed = 0.1f; // Velocidad de reducción
+    private float shrinkSpeed = 0.02f; // Velocidad de reducción
     private float minScale = 0.1f; // Escala mínima del objeto
     public Vector2 finalPosition = Vector2.zero; // Posición final
 

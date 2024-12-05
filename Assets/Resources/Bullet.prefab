@@ -102,7 +102,6 @@ MonoBehaviour:
   speed: 10
   radius: 0.2
   lifetime: 5
-  bulletPrefab: {fileID: 0}
 --- !u!114 &4966716481943195202
 MonoBehaviour:
   m_ObjectHideFlags: 0
