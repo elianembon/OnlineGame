@@ -7,11 +7,20 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
     private bool isSpawned = false; // Bandera para controlar el spawn del jugador
+    private PhotonView pv;
 
     private void Start()
     {
-        // Espera a recibir la señal de la pantalla de carga
-        Debug.Log("Esperando señal para instanciar al jugador...");
+        pv = GetComponent<PhotonView>();
+        string playerID = PhotonNetwork.NickName;
+
+        // Cargar estadísticas del jugador al inicio
+        PlayerStatsManager.Instance.LoadStats(playerID);
+
+        PhotonNetwork.Instantiate(playerPrefab.name,
+            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
+
+        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
     }
 
     public void SpawnPlayer()

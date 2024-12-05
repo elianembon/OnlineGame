@@ -40,21 +40,21 @@ public class CardSelectionManager : MonoBehaviourPun
     [PunRPC]
     void AssignCardToPlayer(string cardName, float damage, float cooldown, float bullets)
     {
-        // Este RPC es llamado por cada jugador y les asigna una carta correspondiente
-        var assignedCard = new cards { name = cardName, damage = damage, cooldown = cooldown, bullets = bullets };
+        //// Este RPC es llamado por cada jugador y les asigna una carta correspondiente
+        //var assignedCard = new cards { name = cardName, damage = damage, cooldown = cooldown, bullets = bullets };
 
-        // Asignamos la carta a los slots de la UI de los jugadores
-        foreach (CardDisplay slot in cardSlots)
-        {
-            if (slot.card == null)  // Solo asignamos la carta si el slot está vacío
-            {
-                slot.SetCard(assignedCard);
-                break;  // Solo asignamos una carta por slot
-            }
-        }
+        //// Asignamos la carta a los slots de la UI de los jugadores
+        //foreach (CardDisplay slot in cardSlots)
+        //{
+        //    if (slot.card == null)  // Solo asignamos la carta si el slot está vacío
+        //    {
+        //        slot.SetCard(assignedCard);
+        //        break;  // Solo asignamos una carta por slot
+        //    }
+        //}
 
-        // Activamos la UI para que los jugadores puedan seleccionar sus cartas
-        EnableCardSelectionUI(true);
+        //// Activamos la UI para que los jugadores puedan seleccionar sus cartas
+        //EnableCardSelectionUI(true);
     }
 
     // Activamos o desactivamos la UI de selección de cartas

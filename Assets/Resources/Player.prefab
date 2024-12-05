@@ -236,7 +236,6 @@ GameObject:
   - component: {fileID: 5945423150168383549}
   - component: {fileID: 2756172228047672020}
   - component: {fileID: 2432270004321734371}
-  - component: {fileID: 4171554133683736772}
   - component: {fileID: 1542423185005564611}
   - component: {fileID: 5350842843868702123}
   - component: {fileID: 7431244006124103478}
@@ -395,25 +394,6 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
---- !u!114 &4171554133683736772
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4537193759442732516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65be6ae8282b2364f84978f650edcee1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  score: 0
-  baseDamage: 1
-  baseCooldown: 1
-  baseBullets: 10
-  currentDamage: 0
-  currentCooldown: 0
-  currentBullets: 0
 --- !u!114 &1542423185005564611
 MonoBehaviour:
   m_ObjectHideFlags: 0
