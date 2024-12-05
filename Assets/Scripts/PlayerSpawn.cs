@@ -7,20 +7,11 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
     private bool isSpawned = false; // Bandera para controlar el spawn del jugador
-    private PhotonView pv;
 
     private void Start()
     {
-        pv = GetComponent<PhotonView>();
-        string playerID = PhotonNetwork.NickName;
-
-        // Cargar estadísticas del jugador al inicio
-        //PlayerStatsManager.Instance.LoadStats(playerID);
-
-        PhotonNetwork.Instantiate(playerPrefab.name,
-            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
-
-        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        // Espera a recibir la señal de la pantalla de carga
+        Debug.Log("Esperando señal para instanciar al jugador...");
     }
 
     public void SpawnPlayer()
@@ -82,6 +73,7 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
         for (int i = 20; i > 0; i--)
         {
+            Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }

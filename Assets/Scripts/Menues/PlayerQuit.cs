@@ -9,18 +9,18 @@ public class PlayerQuit : MonoBehaviourPunCallbacks
 {
      private const int MinPlayers = 3;
 
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
+    //public override void OnPlayerLeftRoom(Player otherPlayer)
+    //{
 
-        if (PhotonNetwork.CurrentRoom.PlayerCount < MinPlayers)
-        {
-            GoToMenu();
-        }
-    }
-    private void GoToMenu()
-    {
-        PhotonNetwork.LeaveRoom();
-        SceneManager.LoadScene("Menu");
-    }
+    //    if (PhotonNetwork.CurrentRoom.PlayerCount < MinPlayers)
+    //    {
+    //        GoToMenu();
+    //    }
+    //}
+    //private void GoToMenu()
+    //{
+    //    PhotonNetwork.LeaveRoom();
+    //    SceneManager.LoadScene("Menu");
+    //}
 
 }
