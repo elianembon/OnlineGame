@@ -157,7 +157,7 @@ public class PlayerController : MonoBehaviour
         if (health <= 0)
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
-            //NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+            NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
             HandleDefeat();
         }
     }
