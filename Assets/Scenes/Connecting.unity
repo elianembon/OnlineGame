@@ -211,7 +211,6 @@ GameObject:
   - component: {fileID: 547981498}
   - component: {fileID: 547981497}
   - component: {fileID: 547981496}
-  - component: {fileID: 547981495}
   - component: {fileID: 547981500}
   m_Layer: 5
   m_Name: CanvasReconnect
@@ -220,20 +219,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &547981495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 547981494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a9a8321a55c37448814d1a1aab355a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  reconnectPanel: {fileID: 641906275}
-  connectPanel: {fileID: 241194793}
 --- !u!114 &547981496
 MonoBehaviour:
   m_ObjectHideFlags: 0
