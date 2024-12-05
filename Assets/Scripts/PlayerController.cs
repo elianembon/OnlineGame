@@ -152,7 +152,7 @@ public class PlayerController : MonoBehaviour
         // Sincroniza la nueva vida con los demás jugadores
         pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
 
-        Debug.Log($"Nave {pv.Owner.NickName} recibió daño. Vida restante: {health}");
+        
 
         if (health <= 0)
         {
@@ -186,7 +186,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = true;
-            Debug.Log($"Jugador {pv.Owner.NickName} salió de la zona segura.");
+            
         }
     }
 
@@ -195,7 +195,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = false;
-            Debug.Log($"Jugador {pv.Owner.NickName} entró a la zona segura.");
+            
         }
     }
 }

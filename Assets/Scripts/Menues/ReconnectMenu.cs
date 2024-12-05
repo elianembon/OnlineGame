@@ -28,7 +28,7 @@ public class ReconnectMenu : MonoBehaviourPunCallbacks
 
     private IEnumerator WaitBeforeStartGame()
     {
-        Debug.Log("Esperando 5 segundos antes de iniciar...");
+        
         yield return new WaitForSeconds(5f);
         connectPanel.SetActive(false);
         NotifySpawnPlayer(); // Notifica que el jugador puede ser instanciado

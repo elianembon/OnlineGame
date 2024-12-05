@@ -12,19 +12,24 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     private void Start()
     {
         pv = GetComponent<PhotonView>();
-        PhotonNetwork.Instantiate(playerPrefab.name,
-            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        // Asignar el playerID cuando se conecte un jugador
-        string playerID = PhotonNetwork.NickName;
-        Debug.Log($"Jugador {playerID} conectado.");
+        // El Master Client verifica si puede iniciar la cuenta regresiva
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CheckAllPlayersReady();
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
-    }
 
+        // El Master Client verifica si ya están todos los jugadores conectados
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CheckAllPlayersReady();
+        }
+    }
 
     public void SpawnPlayer()
     {
@@ -34,7 +39,21 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         PhotonNetwork.Instantiate(playerPrefab.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total jugadores: {PhotonNetwork.PlayerList.Length}");
+    }
+
+    public void CheckAllPlayersReady()
+    {
+        // Condición para iniciar el juego (ajusta según el mínimo necesario)
+        if (PhotonNetwork.PlayerList.Length >= 3) // Cambia 3 al número mínimo que desees
+        {
+            Debug.Log("Todos los jugadores están conectados. Iniciando cuenta regresiva...");
+            photonView.RPC("StartCountdown", RpcTarget.All); // Llama al RPC en todos los clientes
+        }
+        else
+        {
+            Debug.Log("Esperando más jugadores para iniciar...");
+        }
     }
 
     [PunRPC]
@@ -53,6 +72,10 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
             yield break;
         }
 
+        // Espera de 5 segundos antes de iniciar la primera cuenta regresiva
+        Debug.Log("Esperando 5 segundos antes de iniciar la primera cuenta regresiva.");
+        yield return new WaitForSeconds(5);
+
         // Primera cuenta regresiva
         Debug.Log("Primera cuenta regresiva iniciada.");
         for (int i = 3; i > 0; i--)
@@ -67,7 +90,10 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
         // Habilitar movimiento para todos los jugadores
         Debug.Log("Habilitando el movimiento para todos los jugadores.");
-        photonView.RPC("EnableMovement", RpcTarget.All); // Esto activa `GgGameManager.canMove` en todos los clientes
+        photonView.RPC("EnableMovement", RpcTarget.All);
+
+        // Esperar brevemente antes de iniciar la segunda cuenta regresiva
+        yield return new WaitForSeconds(1);
 
         // Segunda cuenta regresiva (20 segundos)
         Debug.Log("Iniciando la segunda cuenta regresiva (zona y disparos deshabilitados).");
@@ -81,7 +107,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
         Debug.Log("Segunda cuenta regresiva finalizada. Habilitando disparos y reducción de zona.");
         uiManager.UpdateCountdown(0);
-
         photonView.RPC("RestrictActions", RpcTarget.All, false); // Habilita disparos y zona
     }
 
