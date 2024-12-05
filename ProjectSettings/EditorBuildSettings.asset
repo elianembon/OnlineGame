@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PickMejora.unity
     guid: 990f4ebd724a67443bfcd5557e088d5d
+  - enabled: 1
+    path: Assets/Scenes/GameFinished.unity
+    guid: c1970b9cd00e1c342ac8935f321969b6
   m_configObjects: {}
