@@ -8,43 +8,43 @@ using Photon.Realtime;
 
 public class CardDisplay : MonoBehaviour
 {
-    //public cards card;
+    public cards card;
 
-    //public TMP_Text nameText;
-    //public TMP_Text damageText;
-    //public TMP_Text bulletsText;
-    //public TMP_Text cooldownText;
+    public TMP_Text nameText;
+    public TMP_Text damageText;
+    public TMP_Text bulletsText;
+    public TMP_Text cooldownText;
 
-    //public Button selectButton;
+    public Button selectButton;
 
-    //private CardSelectionManager cardSelectionManager;
+    private CardSelectionManager cardSelectionManager;
 
-    //void Start()
-    //{
-    //    cardSelectionManager = FindObjectOfType<CardSelectionManager>(); // Busca el gestor de selección de cartas
-    //    selectButton.onClick.AddListener(OnCardSelected);
-    //}
+    void Start()
+    {
+        cardSelectionManager = FindObjectOfType<CardSelectionManager>(); // Busca el gestor de selección de cartas
+        selectButton.onClick.AddListener(OnCardSelected);
+    }
 
-    //public void SetCard(cards newCard)
-    //{
-    //    card = newCard;
+    public void SetCard(cards newCard)
+    {
+        card = newCard;
 
-    //    nameText.text = card.name;
-    //    damageText.text = "" + card.damage.ToString();
-    //    bulletsText.text = "" + card.bullets.ToString();
-    //    cooldownText.text = "" + card.cooldown.ToString();
-    //}
+        nameText.text = card.name;
+        damageText.text = "" + card.damage.ToString();
+        bulletsText.text = "" + card.bullets.ToString();
+        cooldownText.text = "" + card.cooldown.ToString();
+    }
 
-    //void OnCardSelected()
-    //{
-    //    Debug.Log($"{card.name} selected!");
-    //    if (cardSelectionManager != null && card != null)
-    //    {
-    //        cardSelectionManager.CardSelected(card); // Notificamos al CardSelectionManager
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("CardSelectionManager o card es null.");
-    //    }
-    //}
+    void OnCardSelected()
+    {
+        Debug.Log($"{card.name} selected!");
+        if (cardSelectionManager != null && card != null)
+        {
+            cardSelectionManager.CardSelected(card); // Notificamos al CardSelectionManager
+        }
+        else
+        {
+            Debug.LogError("CardSelectionManager o card es null.");
+        }
+    }
 }
