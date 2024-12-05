@@ -69,24 +69,44 @@ public class CardSelectionManager : MonoBehaviourPun
     // Método que se llama cuando un jugador selecciona una carta
     public void CardSelected(cards selectedCard)
     {
-        // Aplicamos la carta seleccionada a este jugador
+        Debug.Log($"Aplicando carta {selectedCard.name}...");
+
+        // Buscar al jugador local usando su PhotonView
+        PlayerStats localPlayerStats = null;
+
+        foreach (var player in FindObjectsOfType<PlayerStats>())
+        {
+            if (player.photonView.IsMine) // Verifica si este es el jugador local
+            {
+                localPlayerStats = player;
+                break;
+            }
+        }
+
+        if (localPlayerStats != null)
+        {
+            // Aplicamos la carta localmente al jugador
+            localPlayerStats.ApplyCardEffect(selectedCard.damage, selectedCard.cooldown, (int)selectedCard.bullets);
+        }
+        else
+        {
+            Debug.LogError("No se encontró el script PlayerStats en el jugador local.");
+        }
+
+        // Notificamos al Master Client que esta carta ha sido seleccionada (si necesitas sincronización)
         photonView.RPC("ApplyCardToPlayer", RpcTarget.MasterClient, selectedCard.name);
 
         // Pasamos al siguiente jugador
         photonView.RPC("NextSelector", RpcTarget.AllBuffered);
     }
 
+
+
     [PunRPC]
     private void ApplyCardToPlayer(string cardName)
     {
-        // Aquí obtenemos la carta seleccionada por el jugador
-        cards selectedCard = cardManager.GetCardByName(cardName);
-        if (selectedCard != null)
-        {
-            PlayerStats currentPlayer = FindObjectOfType<PlayerStats>();
-            currentPlayer.ApplyCardEffect(selectedCard.damage, selectedCard.cooldown, (int)selectedCard.bullets);
-            Debug.Log($"Carta {cardName} aplicada al jugador.");
-        }
+        // Esto puede ser opcional si ya aplicaste las estadísticas localmente
+        Debug.Log($"El jugador seleccionó la carta: {cardName}");
     }
 
     // Llamamos al siguiente jugador para que elija su carta

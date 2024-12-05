@@ -17,8 +17,11 @@ public class CardDisplay : MonoBehaviour
 
     public Button selectButton;
 
+    private CardSelectionManager cardSelectionManager;
+
     void Start()
     {
+        cardSelectionManager = FindObjectOfType<CardSelectionManager>(); // Busca el gestor de selección de cartas
         selectButton.onClick.AddListener(OnCardSelected);
     }
 
@@ -35,6 +38,13 @@ public class CardDisplay : MonoBehaviour
     void OnCardSelected()
     {
         Debug.Log($"{card.name} selected!");
-
+        if (cardSelectionManager != null && card != null)
+        {
+            cardSelectionManager.CardSelected(card); // Notificamos al CardSelectionManager
+        }
+        else
+        {
+            Debug.LogError("CardSelectionManager o card es null.");
+        }
     }
 }
