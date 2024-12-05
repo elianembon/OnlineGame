@@ -66,25 +66,24 @@ public class CardSelectionManager : MonoBehaviourPun
         }
     }
 
-    // Método que se llama cuando un jugador selecciona una carta
+
     public void CardSelected(cards selectedCard)
     {
-        // Aplicamos la carta seleccionada a este jugador
-        photonView.RPC("ApplyCardToPlayer", RpcTarget.MasterClient, selectedCard.name);
+        // Aquí pasamos los valores de la carta seleccionada como parámetros
+        photonView.RPC("ApplyCardToPlayer", RpcTarget.AllBuffered, selectedCard.name, selectedCard.damage, selectedCard.cooldown, selectedCard.bullets);
 
         // Pasamos al siguiente jugador
         photonView.RPC("NextSelector", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
-    private void ApplyCardToPlayer(string cardName)
+    public void ApplyCardToPlayer(string cardName, float damage, float cooldown, float bullets)
     {
-        // Aquí obtenemos la carta seleccionada por el jugador
         cards selectedCard = cardManager.GetCardByName(cardName);
         if (selectedCard != null)
         {
             PlayerStats currentPlayer = FindObjectOfType<PlayerStats>();
-            currentPlayer.ApplyCardEffect(selectedCard.damage, selectedCard.cooldown, (int)selectedCard.bullets);
+            currentPlayer.ApplyCardEffect(damage, cooldown, (int)bullets);
             Debug.Log($"Carta {cardName} aplicada al jugador.");
         }
     }
