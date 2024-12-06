@@ -267,7 +267,7 @@ public class PlayerController : MonoBehaviour
         if (PhotonNetwork.IsConnected && pv.IsMine)
         {
             PhotonNetwork.LeaveRoom();
-            PhotonNetwork.LoadLevel("Menu");
+            PhotonNetwork.LoadLevel("LoadScene");
             Debug.Log("Jugador desconectado de la sala.");
         }
     }
