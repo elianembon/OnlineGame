@@ -33,6 +33,13 @@ public class Bullet : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
+            // Ignorar colisiones con la capa Consumable
+            if (hit.gameObject.layer == LayerMask.NameToLayer("Consumable"))
+            {
+                continue; // Salta al siguiente objeto
+            }
+
+            // Colisión con jugadores
             if (hit.CompareTag("Player"))
             {
                 PhotonView playerView = hit.GetComponent<PhotonView>();
@@ -43,18 +50,23 @@ public class Bullet : MonoBehaviour
                     return;
                 }
             }
-        }
 
-        // Detectar colisión con objetos destructibles.
-        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Destructible"))
-        {
-            PhotonView objectView = obj.GetComponent<PhotonView>();
-            ObjectsHealth healthComponent = obj.GetComponent<ObjectsHealth>();
-            if (objectView != null && CircleRectangleCollision(transform.position, radius, obj.transform.position, obj.transform.localScale))
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Destructible"))
             {
-                ApplyDamage(objectView, 10); // Aplica 10 de daño.
-                DestroyBullet();
-                return;
+                // Ignorar colisiones con capas específicas, como "Consumable".
+                if (obj.layer == LayerMask.NameToLayer("Consumable"))
+                {
+                    continue; // Salta al siguiente objeto en la iteración.
+                }
+
+                PhotonView objectView = obj.GetComponent<PhotonView>();
+                ObjectsHealth healthComponent = obj.GetComponent<ObjectsHealth>();
+                if (objectView != null && CircleRectangleCollision(transform.position, radius, obj.transform.position, obj.transform.localScale))
+                {
+                    ApplyDamage(objectView, 10); // Aplica 10 de daño.
+                    DestroyBullet();
+                    return;
+                }
             }
         }
     }

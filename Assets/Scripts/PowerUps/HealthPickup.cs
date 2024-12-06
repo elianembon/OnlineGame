@@ -16,7 +16,10 @@ public class HealthPickup : MonoBehaviour
 
     private void Update()
     {
-        CheckCollision();
+        if (PhotonNetwork.IsMasterClient) // Solo el MasterClient procesa colisiones.
+        {
+            CheckCollision();
+        }
     }
 
     private void CheckCollision()
@@ -26,16 +29,17 @@ public class HealthPickup : MonoBehaviour
             PhotonView playerView = player.GetComponent<PhotonView>();
             if (playerView != null && CircleRectangleCollision(transform.position, radius, player.transform.position, player.transform.localScale))
             {
-                HealCurrentHealth(playerView);
+                NotifyPlayerHeal(playerView.ViewID);
                 DestroyPickup();
                 return;
             }
         }
     }
 
-    private void HealCurrentHealth(PhotonView targetView)
+    private void NotifyPlayerHeal(int viewID)
     {
-        if (PhotonNetwork.IsMasterClient)
+        PhotonView targetView = PhotonView.Find(viewID);
+        if (targetView != null)
         {
             targetView.RPC("HealPlayerCurrentHealth", RpcTarget.AllBuffered, healthAmount);
         }
@@ -43,14 +47,7 @@ public class HealthPickup : MonoBehaviour
 
     private void DestroyPickup()
     {
-        if (PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        PhotonNetwork.Destroy(gameObject); // El MasterClient destruye el objeto.
     }
 
     private bool CircleRectangleCollision(Vector3 circlePos, float circleRadius, Vector3 rectPos, Vector3 rectSize)
