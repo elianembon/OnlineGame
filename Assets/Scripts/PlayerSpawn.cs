@@ -1,12 +1,14 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerSpawn : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private GameObject playerPrefab;
-    private bool isSpawned = false; // Bandera para controlar el spawn del jugador
+    [SerializeField] private GameObject[] playerPrefabs; // Lista de prefabs disponibles
+    private List<int> assignedIndices = new List<int>(); // Lista de índices ya asignados
+    private bool isSpawned = false; // Bandera para evitar spawnear varias veces
     private PhotonView pv;
 
     private void Start()
@@ -36,10 +38,44 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         if (isSpawned) return; // Evitar instanciar más de una vez
         isSpawned = true;
 
-        PhotonNetwork.Instantiate(playerPrefab.name,
+        // Asignar un prefab aleatorio sin repetir
+        int prefabIndex = GetRandomPrefabIndex();
+        GameObject prefabToSpawn = playerPrefabs[prefabIndex];
+
+        // Instanciar el prefab asignado
+        PhotonNetwork.Instantiate(prefabToSpawn.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total jugadores: {PhotonNetwork.PlayerList.Length}");
+        Debug.Log($"Jugador {PhotonNetwork.NickName} spawneado con prefab: {prefabToSpawn.name}");
+    }
+
+    private int GetRandomPrefabIndex()
+    {
+        if (assignedIndices.Count >= playerPrefabs.Length)
+        {
+            Debug.LogError("Todos los prefabs ya han sido asignados.");
+            return 0; // Como fallback
+        }
+
+        int randomIndex;
+        do
+        {
+            randomIndex = Random.Range(0, playerPrefabs.Length);
+        } while (assignedIndices.Contains(randomIndex)); // Reintentar si ya fue asignado
+
+        assignedIndices.Add(randomIndex); // Registrar el índice como asignado
+        photonView.RPC("SyncAssignedIndices", RpcTarget.Others, randomIndex); // Sincronizar con otros jugadores
+
+        return randomIndex;
+    }
+
+    [PunRPC]
+    private void SyncAssignedIndices(int index)
+    {
+        if (!assignedIndices.Contains(index))
+        {
+            assignedIndices.Add(index);
+        }
     }
 
     public void CheckAllPlayersReady()
