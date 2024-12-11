@@ -40,10 +40,14 @@ public class Shoot : MonoBehaviour
 
         if (bulletPrefab != null && bulletSpawnPoint != null)
         {
-            // Instancia la bala usando PhotonNetwork para sincronizarla en todos los jugadores.
-            PhotonNetwork.Instantiate(bulletPrefab.name, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+            // Instanciar la bala. El jugador que ejecuta este código será el propietario de la bala.
+            GameObject bullet = PhotonNetwork.Instantiate(bulletPrefab.name, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
 
-            Debug.Log($"Jugador {PhotonNetwork.NickName} disparó una bala.");
+            PhotonView bulletPv = bullet.GetComponent<PhotonView>();
+            if (bulletPv != null && bulletPv.IsMine)
+            {
+                Debug.Log($"Jugador {PhotonNetwork.NickName} disparó una bala con ID {bulletPv.ViewID}");
+            }
         }
         else
         {

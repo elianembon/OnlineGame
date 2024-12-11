@@ -58,6 +58,17 @@ MonoBehaviour:
   - RestrictActions
   - AssignCardToPlayer
   - PlayerDefeated
+  - HealPlayer
+  - IncreaseMaxHealth
+  - HealPlayerCurrentHealth
+  - IncreaseMaxHealthOnly
+  - IncreaseBulletDamage
+  - NotifyPlayerDefeated
+  - DisconnectPlayer
+  - RequestDestroyPickup
+  - AssignPrefab
+  - SpawnAssignedPrefab
+  - SyncAssignedIndices
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

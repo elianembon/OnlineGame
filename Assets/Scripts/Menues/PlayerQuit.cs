@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 
 public class PlayerQuit : MonoBehaviourPunCallbacks
 {
-     private const int MinPlayers = 3;
+     private const int MinPlayers = 1;
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
 
-        if (PhotonNetwork.CurrentRoom.PlayerCount < MinPlayers)
+        if (PhotonNetwork.CurrentRoom.PlayerCount == MinPlayers)
         {
             GoToMenu();
         }
@@ -20,7 +20,7 @@ public class PlayerQuit : MonoBehaviourPunCallbacks
     private void GoToMenu()
     {
         PhotonNetwork.LeaveRoom();
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("GameFinished");
     }
 
 }

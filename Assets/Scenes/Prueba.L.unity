@@ -152,9 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b708905c3dc83804ebb26aee0e91af1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthManager: {fileID: 1651202798}
-  damageAmount: 20
-  damageKey: 32
+  Disconnect: 9
+  Reconnect: 32
 --- !u!4 &185094143
 Transform:
   m_ObjectHideFlags: 0
@@ -307,17 +306,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1651202798 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8115160803097402875, guid: 62657c8edad89024887fbb250af16372, type: 3}
-  m_PrefabInstance: {fileID: 1987094476685046381}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2d9d1affb1c18a4fb87bf5fab526266, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1987094476685046381
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -452,6 +440,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2939786163164787863, guid: e44a1016711043c4fbfd9abc64fade3d, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 146479309169518050, guid: e44a1016711043c4fbfd9abc64fade3d, type: 3}
       propertyPath: m_Name
       value: Rock

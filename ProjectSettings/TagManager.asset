@@ -14,7 +14,7 @@ TagManager:
   - Water
   - UI
   - Player
-  - 
+  - Consumable
   - 
   - 
   - 
@@ -54,4 +54,7 @@ TagManager:
     locked: 0
   - name: Bullet
     uniqueID: 355862981
+    locked: 0
+  - name: UI
+    uniqueID: 321113017
     locked: 0

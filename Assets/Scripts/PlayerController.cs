@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
 
     // Player
     public int health = 60; // Vida inicial de la nave
+    public int maxHealth = 60; // Vida máxima inicial
     [SerializeField] private float rotationSmoothSpeed = 10f;
     private bool isOutsideSafeZone = false; // Indica si el jugador está fuera de la zona segura
 
@@ -135,58 +136,118 @@ public class PlayerController : MonoBehaviour
     }
 
     [PunRPC]
-    void UpdateHealth(int newHealth)
-    {
-        health = newHealth;
-        healthSlider.value = health;
-    }
-
-    [PunRPC]
-    void TakeDamage(int damage)
+    void HealPlayerCurrentHealth(int amount)
     {
         if (!pv.IsMine) return;
 
-        health -= damage;
-        health = Mathf.Clamp(health, 0, 60);
+        // Incrementar solo la vida actual, sin afectar la vida máxima
+        health += amount;
+        health = Mathf.Clamp(health, 0, maxHealth); // Asegurarse de no exceder el límite máximo.
 
-        // Sincroniza la nueva vida con los demás jugadores
+        // Actualizar el HUD
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+        }
+
+        //Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+    }
+
+    [PunRPC]
+    void UpdateHealth(int newHealth)
+    {
+        health = newHealth;
+
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = health;
+        }
+    }
+
+    [PunRPC]
+    void IncreaseMaxHealthOnly(int amount)
+    {
+        if (!pv.IsMine) return;
+
+        // Incrementar solo la vida máxima, sin afectar la vida actual
+        maxHealth += amount;
+
+        // Actualizar el HUD para reflejar la nueva vida máxima
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+        }
+
+       // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+    }
+    [PunRPC]
+    void TakeDamage(int damage)
+    {
+        health -= damage;
+        health = Mathf.Clamp(health, 0, maxHealth);
+
+        // Sincronizar la nueva vida con los demás jugadores
         pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
 
-        Debug.Log($"Nave {pv.Owner.NickName} recibió daño. Vida restante: {health}");
+        // Actualizar el Slider local
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+        }
 
         if (health <= 0)
         {
             Debug.Log($"Nave {pv.Owner.NickName} destruida.");
-            NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
             HandleDefeat();
+
+            // Asegurarse de que solo el jugador cuya nave ha sido destruida se desconecte
+            if (pv.IsMine)
+            {
+                DisconnectPlayer();
+            }
         }
     }
+
 
     private void HandleDefeat()
     {
+        if (PhotonNetwork.IsConnected && pv.IsMine)
+        {
+            // Notificar a los demás jugadores que este jugador ha sido eliminado
+            pv.RPC("NotifyPlayerDefeated", RpcTarget.AllBuffered, pv.Owner.NickName);
+        }
+
         gameObject.SetActive(false); // Desactivar el jugador para simular su muerte
-        NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
+        //NotifyRoundManager(); // Notificar que este jugador ha sido derrotado
     }
 
-    private void NotifyRoundManager()
+    [PunRPC]
+    void NotifyPlayerDefeated(string playerName)
     {
-        RoundManager roundManager = FindObjectOfType<RoundManager>();
-        if (roundManager != null)
-        {
-            roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
-        }
-        else
-        {
-            Debug.LogError("No se encontró un RoundManager en la escena.");
-        }
+        Debug.Log($"El jugador {playerName} ha sido eliminado.");
     }
+
+
+    //private void NotifyRoundManager()
+    //{
+    //    RoundManager roundManager = FindObjectOfType<RoundManager>();
+    //    if (roundManager != null)
+    //    {
+    //        roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("No se encontró un RoundManager en la escena.");
+    //    }
+    //}
 
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = true;
-            Debug.Log($"Jugador {pv.Owner.NickName} salió de la zona segura.");
+
         }
     }
 
@@ -195,7 +256,22 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("SafeZone"))
         {
             isOutsideSafeZone = false;
-            Debug.Log($"Jugador {pv.Owner.NickName} entró a la zona segura.");
+
         }
     }
+
+    [PunRPC]
+    public void DisconnectPlayer()
+    {
+        // Asegurarse de que solo el jugador que ha muerto realice la desconexión
+        if (PhotonNetwork.IsConnected && pv.IsMine)
+        {
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.LoadLevel("LoadScene");
+            Debug.Log("Jugador desconectado de la sala.");
+        }
+    }
+
 }
+
+

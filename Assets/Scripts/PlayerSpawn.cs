@@ -1,26 +1,36 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerSpawn : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private GameObject playerPrefab;
-    private bool isSpawned = false; // Bandera para controlar el spawn del jugador
+    [SerializeField] private GameObject[] playerPrefabs; // Lista de prefabs disponibles
+    private List<int> assignedIndices = new List<int>(); // Lista de índices ya asignados
+    private bool isSpawned = false; // Bandera para evitar spawnear varias veces
     private PhotonView pv;
 
     private void Start()
     {
         pv = GetComponent<PhotonView>();
-        string playerID = PhotonNetwork.NickName;
 
-        // Cargar estadísticas del jugador al inicio
-        PlayerStatsManager.Instance.LoadStats(playerID);
+        // El Master Client verifica si puede iniciar la cuenta regresiva
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CheckAllPlayersReady();
+        }
+    }
 
-        PhotonNetwork.Instantiate(playerPrefab.name,
-            new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
 
-        Debug.Log($"Jugador {playerID} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        // El Master Client verifica si ya están todos los jugadores conectados
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CheckAllPlayersReady();
+        }
     }
 
     public void SpawnPlayer()
@@ -28,20 +38,57 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         if (isSpawned) return; // Evitar instanciar más de una vez
         isSpawned = true;
 
-        PhotonNetwork.Instantiate(playerPrefab.name,
+        // Asignar un prefab aleatorio sin repetir
+        int prefabIndex = GetRandomPrefabIndex();
+        GameObject prefabToSpawn = playerPrefabs[prefabIndex];
+
+        // Instanciar el prefab asignado
+        PhotonNetwork.Instantiate(prefabToSpawn.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
 
-        Debug.Log($"Jugador {PhotonNetwork.NickName} conectado. Total: {PhotonNetwork.PlayerList.Length}");
+        Debug.Log($"Jugador {PhotonNetwork.NickName} spawneado con prefab: {prefabToSpawn.name}");
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
+    private int GetRandomPrefabIndex()
     {
-        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
-
-        if (PhotonNetwork.PlayerList.Length == 3 && PhotonNetwork.IsMasterClient)
+        if (assignedIndices.Count >= playerPrefabs.Length)
         {
-            Debug.Log("Se alcanzó el número de jugadores requerido. Iniciando cuenta regresiva.");
-            photonView.RPC("StartCountdown", RpcTarget.All);
+            Debug.LogError("Todos los prefabs ya han sido asignados.");
+            return 0; // Como fallback
+        }
+
+        int randomIndex;
+        do
+        {
+            randomIndex = Random.Range(0, playerPrefabs.Length);
+        } while (assignedIndices.Contains(randomIndex)); // Reintentar si ya fue asignado
+
+        assignedIndices.Add(randomIndex); // Registrar el índice como asignado
+        photonView.RPC("SyncAssignedIndices", RpcTarget.Others, randomIndex); // Sincronizar con otros jugadores
+
+        return randomIndex;
+    }
+
+    [PunRPC]
+    private void SyncAssignedIndices(int index)
+    {
+        if (!assignedIndices.Contains(index))
+        {
+            assignedIndices.Add(index);
+        }
+    }
+
+    public void CheckAllPlayersReady()
+    {
+        // Condición para iniciar el juego (ajusta según el mínimo necesario)
+        if (PhotonNetwork.PlayerList.Length >= 3) // Cambia 3 al número mínimo que desees
+        {
+            Debug.Log("Todos los jugadores están conectados. Iniciando cuenta regresiva...");
+            photonView.RPC("StartCountdown", RpcTarget.All); // Llama al RPC en todos los clientes
+        }
+        else
+        {
+            Debug.Log("Esperando más jugadores para iniciar...");
         }
     }
 
@@ -61,6 +108,10 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
             yield break;
         }
 
+        // Espera de 5 segundos antes de iniciar la primera cuenta regresiva
+        Debug.Log("Esperando 5 segundos antes de iniciar la primera cuenta regresiva.");
+        yield return new WaitForSeconds(5);
+
         // Primera cuenta regresiva
         Debug.Log("Primera cuenta regresiva iniciada.");
         for (int i = 3; i > 0; i--)
@@ -75,20 +126,23 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
 
         // Habilitar movimiento para todos los jugadores
         Debug.Log("Habilitando el movimiento para todos los jugadores.");
-        photonView.RPC("EnableMovement", RpcTarget.All); // Esto activa `GgGameManager.canMove` en todos los clientes
+        photonView.RPC("EnableMovement", RpcTarget.All);
+
+        // Esperar brevemente antes de iniciar la segunda cuenta regresiva
+        yield return new WaitForSeconds(1);
 
         // Segunda cuenta regresiva (20 segundos)
         Debug.Log("Iniciando la segunda cuenta regresiva (zona y disparos deshabilitados).");
         photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
         for (int i = 20; i > 0; i--)
         {
+            Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }
 
         Debug.Log("Segunda cuenta regresiva finalizada. Habilitando disparos y reducción de zona.");
         uiManager.UpdateCountdown(0);
-
         photonView.RPC("RestrictActions", RpcTarget.All, false); // Habilita disparos y zona
     }
 

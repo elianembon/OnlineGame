@@ -5,53 +5,43 @@ using UnityEngine;
 
 public class RandomAp : MonoBehaviour
 {
-    public GameObject thing;
-    public Vector2 spawnAreaMin; //segun el tamaño actual del mapa, seria x: -160 y y: -65
-    public Vector2 spawnAreaMax; //segun el tamaño actual del mapa, seria x: 170 y y: 75
-
-    /*public int spawnCount;
-    public int spawnCountMax;*/
+    public List<GameObject> things; // Lista de objetos a instanciar
+    public Vector2 spawnAreaMin = new Vector2(-160, -65); // Coordenadas mínimas del área de spawn
+    public Vector2 spawnAreaMax = new Vector2(170, 75);  // Coordenadas máximas del área de spawn
+    public int spawnCount = 10; // Cantidad de objetos a instanciar
 
     void Start()
     {
-        SpawnObjRm();
-    }
-
-    void SpawnObjRm()
-    {
-        /*if(spawnCount < spawnCountMax)
-        {*/
-            float randomX = Random.Range(spawnAreaMin.x, spawnAreaMax.x);
-            float randomY = Random.Range(spawnAreaMin.y, spawnAreaMax.y);
-
-            Vector2 randPos = new Vector2(randomX, randomY);
-
-        PhotonNetwork.Instantiate(thing.name, randPos, Quaternion.identity);
-
-        /*  spawnCount++;
-      }
-      else
-      {
-          Debug.Log("No mas power ups");
-      }
-
-      */
-    }
-    /*Para cuando obj aparezca en otro lado al ser consumido
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
+        // Solo el MasterClient puede instanciar objetos
+        if (PhotonNetwork.IsMasterClient)
         {
-            Destroy(gameObject);
-            PhotonNetwork.Destroy (photonView) (para que funcione tiene que ser un MonobehaviorPun)
+            SpawnObjects();
+        }
+    }
 
-       if (spawnCount < spawnCountMax)
+    void SpawnObjects()
+    {
+        for (int i = 0; i < spawnCount; i++)
+        {
+            // Seleccionar un objeto aleatorio de la lista
+            GameObject randomThing = things[Random.Range(0, things.Count)];
+
+            if (randomThing == null)
             {
-                Invoke("SpawnObjRm", 0.5f);
+                Debug.LogError("El prefab seleccionado es nulo. Revisa la lista de prefabs.");
+                continue;
             }
 
+            // Generar una posición aleatoria dentro del área
+            float randomX = Random.Range(spawnAreaMin.x, spawnAreaMax.x);
+            float randomY = Random.Range(spawnAreaMin.y, spawnAreaMax.y);
+            Vector2 randomPosition = new Vector2(randomX, randomY);
+
+            // Instanciar el objeto en la red
+            GameObject spawnedObject = PhotonNetwork.Instantiate(randomThing.name, randomPosition, Quaternion.identity);
+
+            // Depuración para verificar el objeto instanciado
+            Debug.Log($"Instanciado: {spawnedObject.name} en posición {randomPosition}");
         }
-
-    }*/
-
+    }
 }
