@@ -156,8 +156,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefabs:
   - {fileID: 5522366439065640165, guid: 96753f1c497edd745a258cdfe767f131, type: 3}
-  - {fileID: 5522366439065640165, guid: cd73264d57affb844b169fa0dd768e4e, type: 3}
-  - {fileID: 5522366439065640165, guid: 72c09c48d1ad80542acf6ed7aebeeea2, type: 3}
+  - {fileID: 5522366439065640165, guid: aeadd96c34de3bc4892d88cdb06ee0a2, type: 3}
+  - {fileID: 5522366439065640165, guid: 5e30164b625f6f74d99acf04532ac81e, type: 3}
 --- !u!4 &10328134
 Transform:
   m_ObjectHideFlags: 0
