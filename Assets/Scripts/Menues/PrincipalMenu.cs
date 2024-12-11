@@ -9,4 +9,8 @@ public class PrincipalMenu : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
+
+
+
+
 }
