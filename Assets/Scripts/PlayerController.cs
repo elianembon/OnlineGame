@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     private PhotonView pv;
     private Camera playerCamera;
+    private Animator animator;
 
     // Player
     public int health = 60; // Vida inicial de la nave
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
         pv = GetComponent<PhotonView>();
         playerCamera = GetComponentInChildren<Camera>();
         countdownText = GetComponentInChildren<TextMeshProUGUI>();
+        animator = GetComponent<Animator>();
     }
 
     private void Start()
@@ -85,6 +87,9 @@ public class PlayerController : MonoBehaviour
             // Interpolación suave hacia la posición y rotación objetivo
             transform.position = Vector3.Lerp(transform.position, networkedPosition, Time.deltaTime * interpolationSpeed);
             transform.rotation = Quaternion.Lerp(transform.rotation, networkedRotation, Time.deltaTime * interpolationSpeed);
+            
+
+
         }
     }
 
@@ -99,7 +104,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) direction += Vector2.left;
         if (Input.GetKey(KeyCode.D)) direction += Vector2.right;
 
-        if (direction != Vector2.zero)
+        bool isMoving = direction != Vector2.zero; 
+        animator.SetBool("IsMoving", isMoving); // Setea el parámetro IsMoving
+
+        if (isMoving)
         {
             transform.position += (Vector3)(direction.normalized * 5 * Time.deltaTime);
 
@@ -109,7 +117,9 @@ public class PlayerController : MonoBehaviour
 
             // Sincronizar posición y rotación con otros jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+
         }
+
     }
 
     private void HandleDamageOutsideSafeZone()
