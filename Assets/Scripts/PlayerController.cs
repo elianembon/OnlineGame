@@ -41,6 +41,10 @@ public class PlayerController : MonoBehaviour
     private float damageTimer = 0f; // Temporizador para el daño
 
 
+    public GameObject panelLostRound;
+
+
+
     
 
     private void Awake()
@@ -240,6 +244,15 @@ public class PlayerController : MonoBehaviour
 
             // Sincronizar la nueva posición y rotación con los demás jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, newPosition, transform.rotation);
+
+
+
+
+            panelLostRound.SetActive(true);
+
+
+
+
 
             OnPlay = false;
         }
