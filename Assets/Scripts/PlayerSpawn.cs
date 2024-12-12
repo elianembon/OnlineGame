@@ -11,6 +11,9 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     private bool isSpawned = false; // Bandera para evitar spawnear varias veces
     private PhotonView pv;
 
+    private int playersEliminated = 0; // Contador de jugadores eliminados
+    private int Reinicio = 0; // Contador de jugadores eliminados
+
     private void Start()
     {
         pv = GetComponent<PhotonView>();
@@ -22,10 +25,13 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         }
     }
 
+    private void Update()
+    {
+        OnWillRenderObject();
+    }
+
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log($"Nuevo jugador conectado: {newPlayer.NickName}. Total jugadores: {PhotonNetwork.PlayerList.Length}");
-
         // El Master Client verifica si ya están todos los jugadores conectados
         if (PhotonNetwork.IsMasterClient)
         {
@@ -45,15 +51,12 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         // Instanciar el prefab asignado
         PhotonNetwork.Instantiate(prefabToSpawn.name,
             new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
-
-        Debug.Log($"Jugador {PhotonNetwork.NickName} spawneado con prefab: {prefabToSpawn.name}");
     }
 
     private int GetRandomPrefabIndex()
     {
         if (assignedIndices.Count >= playerPrefabs.Length)
         {
-            Debug.LogError("Todos los prefabs ya han sido asignados.");
             return 0; // Como fallback
         }
 
@@ -83,7 +86,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         // Condición para iniciar el juego (ajusta según el mínimo necesario)
         if (PhotonNetwork.PlayerList.Length >= 3) // Cambia 3 al número mínimo que desees
         {
-            Debug.Log("Todos los jugadores están conectados. Iniciando cuenta regresiva...");
             photonView.RPC("StartCountdown", RpcTarget.All); // Llama al RPC en todos los clientes
         }
         else
@@ -95,7 +97,6 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     [PunRPC]
     void StartCountdown()
     {
-        Debug.Log("Inicio de cuenta regresiva en todos los clientes.");
         GgGameManager.canMove = false; // Reinicia el estado de movimiento
         StartCoroutine(GameStartCoroutine());
     }
@@ -105,44 +106,35 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         UiManager uiManager = FindObjectOfType<UiManager>();
         if (uiManager == null)
         {
-            Debug.LogError("No se encontró un UiManager en la escena.");
             yield break;
         }
 
         // Espera de 5 segundos antes de iniciar la primera cuenta regresiva
-        Debug.Log("Esperando 5 segundos antes de iniciar la primera cuenta regresiva.");
         yield return new WaitForSeconds(5);
 
         // Primera cuenta regresiva
-        Debug.Log("Primera cuenta regresiva iniciada.");
         for (int i = 3; i > 0; i--)
         {
-            Debug.Log($"Mostrando {i} en el contador.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }
 
-        Debug.Log("Primera cuenta regresiva finalizada.");
         uiManager.UpdateCountdown(0);
 
         // Habilitar movimiento para todos los jugadores
-        Debug.Log("Habilitando el movimiento para todos los jugadores.");
         photonView.RPC("EnableMovement", RpcTarget.All);
 
         // Esperar brevemente antes de iniciar la segunda cuenta regresiva
         yield return new WaitForSeconds(1);
 
         // Segunda cuenta regresiva (20 segundos)
-        Debug.Log("Iniciando la segunda cuenta regresiva (zona y disparos deshabilitados).");
         photonView.RPC("RestrictActions", RpcTarget.All, true); // Deshabilita disparos y zona
-        for (int i = 20; i > 0; i--)
+        for (int i = 5; i > 0; i--)
         {
-            Debug.Log($"Mostrando {i} en la segunda cuenta regresiva.");
             uiManager.UpdateCountdown(i);
             yield return new WaitForSeconds(1);
         }
 
-        Debug.Log("Segunda cuenta regresiva finalizada. Habilitando disparos y reducción de zona.");
         uiManager.UpdateCountdown(0);
         photonView.RPC("RestrictActions", RpcTarget.All, false); // Habilita disparos y zona
     }
@@ -151,7 +143,7 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     void EnableMovement()
     {
         GgGameManager.canMove = true;
-        Debug.Log("El movimiento está ahora habilitado para los jugadores.");
+
     }
 
     [PunRPC]
@@ -161,5 +153,50 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
         Debug.Log(restrict
             ? "Disparos y reducción de zona deshabilitados."
             : "Disparos y reducción de zona habilitados.");
+    }
+
+    public void PlayerDied()
+    {
+        playersEliminated++;
+
+        // Verificar si dos jugadores han sido eliminados
+        if (playersEliminated >= 2)
+        {
+            PlayerRestart();
+            CheckAllPlayersReady();
+        }
+    }
+
+    public void PlayerRestart()
+    {
+        playersEliminated = 0; // Reiniciar el contador de eliminados
+        Reinicio += 1;
+        // Encontrar todos los objetos con la clase PlayerController
+        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        Debug.Log($"Número de jugadores encontrados: {players.Length}");
+
+        foreach (var player in players)
+        {
+            // Llamar a la función para dar nueva posición
+            player.ResetPosition();
+            Debug.Log($"Posición reiniciada para el jugador: {player.name}");
+        }
+
+
+        Debug.Log("Juego reiniciado: posiciones y contadores reiniciados para todos los jugadores.");
+    }
+
+    private void OnWillRenderObject()
+    {
+        if (Reinicio == 1)
+        {
+
+            PlayerController[] players = FindObjectsOfType<PlayerController>();
+            foreach (var player in players)
+            {         
+                // Llamar a la función para dar nueva posición
+                player.PerdisteOGanaste();
+            }
+        }
     }
 }

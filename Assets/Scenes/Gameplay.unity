@@ -138,7 +138,7 @@ GameObject:
   m_Layer: 0
   m_Name: SpawnPlayers
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -167,7 +167,7 @@ Transform:
   m_GameObject: {fileID: 10328132}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.2123485, y: 0.8976238, z: 0.06731895}
+  m_LocalPosition: {x: 0, y: 0, z: 0.06731895}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1100,6 +1100,8 @@ GameObject:
   - component: {fileID: 250960093}
   - component: {fileID: 250960095}
   - component: {fileID: 250960096}
+  - component: {fileID: 250960098}
+  - component: {fileID: 250960097}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -50479,6 +50481,63 @@ MonoBehaviour:
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0
+--- !u!114 &250960097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250960091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8efc6b1d64977384eb3405357896c656, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PositionModel:
+    SynchronizeEnabled: 0
+    TeleportEnabled: 1
+    TeleportIfDistanceGreaterThan: 3
+    InterpolateOption: 2
+    InterpolateMoveTowardsSpeed: 1
+    InterpolateLerpSpeed: 1
+    ExtrapolateOption: 0
+    ExtrapolateSpeed: 1
+    ExtrapolateIncludingRoundTripTime: 1
+    ExtrapolateNumberOfStoredPositions: 1
+  m_RotationModel:
+    SynchronizeEnabled: 0
+    InterpolateOption: 1
+    InterpolateRotateTowardsSpeed: 180
+    InterpolateLerpSpeed: 5
+  m_ScaleModel:
+    SynchronizeEnabled: 0
+    InterpolateOption: 0
+    InterpolateMoveTowardsSpeed: 1
+    InterpolateLerpSpeed: 0
+--- !u!114 &250960098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250960091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 250960096}
+  - {fileID: 250960097}
+  sceneViewId: 38
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1001 &261042802
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50827,11 +50886,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3688659837810193836, guid: aa23986c2682d114bb0f70b48653b10c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -24.597729
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3688659837810193836, guid: aa23986c2682d114bb0f70b48653b10c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -14.471517
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3688659837810193836, guid: aa23986c2682d114bb0f70b48653b10c, type: 3}
       propertyPath: m_LocalPosition.z

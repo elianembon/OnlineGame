@@ -9,7 +9,7 @@ public class KeyboardDamage : MonoBehaviourPunCallbacks
     public int damageAmount = 20;
     public KeyCode damageKey = KeyCode.Space;  // Tecla para causar daño*/
     public KeyCode Disconnect = KeyCode.Tab;  // Tecla para desconectar wifi 
-    public KeyCode Reconnect = KeyCode.Space;  // Tecla para conectar wifi 
+    public KeyCode Reconnect = KeyCode.O;  // Tecla para conectar wifi 
 
     void Update()
     {
