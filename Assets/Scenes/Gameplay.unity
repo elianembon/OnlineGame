@@ -155,9 +155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefabs:
-  - {fileID: 5522366439065640165, guid: 96753f1c497edd745a258cdfe767f131, type: 3}
-  - {fileID: 5522366439065640165, guid: aeadd96c34de3bc4892d88cdb06ee0a2, type: 3}
-  - {fileID: 5522366439065640165, guid: 5e30164b625f6f74d99acf04532ac81e, type: 3}
+  - {fileID: 5522366439065640165, guid: 27a0d6bfe58eb804a8aa28c4dceef625, type: 3}
+  - {fileID: 5522366439065640165, guid: 24c5e0a834ca2c246bbeed89bae23349, type: 3}
+  - {fileID: 5522366439065640165, guid: 0c81000ed20188046a830cc15f5f0904, type: 3}
 --- !u!4 &10328134
 Transform:
   m_ObjectHideFlags: 0

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d26c6c58a655ebb40b94dc26e90cd3fa
+guid: fc0a56d0df4069f498e204b3ef3d72a3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 24.42
+  spritePixelsToUnits: 35
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -106,30 +106,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_0"
+      name: moving 3_0
       rect:
         serializedVersion: 2
-        x: 17
-        y: 82
-        width: 15
-        height: 14
+        x: 0
+        y: 337
+        width: 64
+        height: 30
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +124,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 61d5db66d53d62f4f9417eef68cf517d
-      internalID: 81733022
+      spriteID: 32aa6c4a8022916429a927a44008dc9b
+      internalID: -108406695
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_1"
+      name: moving 3_1
       rect:
         serializedVersion: 2
-        x: 49
-        y: 82
-        width: 15
-        height: 14
+        x: 0
+        y: 273
+        width: 64
+        height: 30
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,20 +145,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 97356d2b6a294e54c91b1037c2c08925
-      internalID: -1309564845
+      spriteID: d7c747358cb177f49acfa029d9baf40f
+      internalID: 863028729
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_2"
+      name: moving 3_2
       rect:
         serializedVersion: 2
-        x: 82
-        y: 82
-        width: 14
-        height: 14
+        x: 0
+        y: 209
+        width: 64
+        height: 30
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,20 +166,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ea33652eef98c4241bbdd148c3551d5f
-      internalID: 1228906457
+      spriteID: 0390ae171b4204249978c3e7141f64dc
+      internalID: -737148795
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_3"
+      name: moving 3_3
       rect:
         serializedVersion: 2
-        x: 16
-        y: 50
-        width: 15
-        height: 12
+        x: 0
+        y: 142
+        width: 64
+        height: 36
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,20 +187,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 75306db9cf35d6f4d8603e479ca8f8e0
-      internalID: -1868531929
+      spriteID: 12a4eb51d192f304e908b1b4cf876630
+      internalID: 1093375978
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_4"
+      name: moving 3_4
       rect:
         serializedVersion: 2
-        x: 47
-        y: 52
-        width: 15
-        height: 8
+        x: 0
+        y: 78
+        width: 64
+        height: 36
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,20 +208,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 93e79bae3ba1b7b44aed40744fabb28e
-      internalID: 1589915846
+      spriteID: a566c50a6985a3242ae7974e33629335
+      internalID: -1317685331
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "ca\xF1ones tiles_5"
+      name: moving 3_5
       rect:
         serializedVersion: 2
-        x: 81
-        y: 52
-        width: 14
-        height: 8
+        x: 0
+        y: 14
+        width: 64
+        height: 36
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -242,71 +229,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c7c746fe99d08b46b40ac2fa90cb52b
-      internalID: -1407690188
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "ca\xF1ones tiles_6"
-      rect:
-        serializedVersion: 2
-        x: 21
-        y: 20
-        width: 8
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d2ba6c2a94fe7e34180a53be9719f5e9
-      internalID: -292695052
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "ca\xF1ones tiles_7"
-      rect:
-        serializedVersion: 2
-        x: 53
-        y: 22
-        width: 5
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bcfb1635481c13949aad956316384513
-      internalID: -655637041
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "ca\xF1ones tiles_8"
-      rect:
-        serializedVersion: 2
-        x: 85
-        y: 22
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 27c5e335ad123fc49ade6f57869c3bd0
-      internalID: 1235414733
+      spriteID: 365c212670cc1b244a02e37fc2b90a21
+      internalID: -1940164360
       vertices: []
       indices: 
       edges: []
@@ -322,15 +246,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      "ca\xF1ones tiles_0": 81733022
-      "ca\xF1ones tiles_1": -1309564845
-      "ca\xF1ones tiles_2": 1228906457
-      "ca\xF1ones tiles_3": -1868531929
-      "ca\xF1ones tiles_4": 1589915846
-      "ca\xF1ones tiles_5": -1407690188
-      "ca\xF1ones tiles_6": -292695052
-      "ca\xF1ones tiles_7": -655637041
-      "ca\xF1ones tiles_8": 1235414733
+      moving 3_0: -108406695
+      moving 3_1: 863028729
+      moving 3_2: -737148795
+      moving 3_3: 1093375978
+      moving 3_4: -1317685331
+      moving 3_5: -1940164360
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
