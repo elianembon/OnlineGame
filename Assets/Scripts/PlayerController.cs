@@ -194,9 +194,11 @@ public class PlayerController : MonoBehaviour
             healthSlider.value = health;
         }
 
+        pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+
+
         //Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
-
     [PunRPC]
     void UpdateHealth(int newHealth)
     {
@@ -210,6 +212,18 @@ public class PlayerController : MonoBehaviour
     }
 
     [PunRPC]
+    void UpdateMaxHealth(int newMaxHealth)
+    {
+        maxHealth = newMaxHealth;
+
+        // Actualizar el HUD para reflejar la nueva vida máxima
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+        }
+    }
+
+    [PunRPC]
     void IncreaseMaxHealthOnly(int amount)
     {
         if (!pv.IsMine) return;
@@ -217,15 +231,14 @@ public class PlayerController : MonoBehaviour
         // Incrementar solo la vida máxima, sin afectar la vida actual
         maxHealth += amount;
 
-        // Actualizar el HUD para reflejar la nueva vida máxima
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-        }
+        // Enviar a todos los jugadores la nueva vida máxima
+        pv.RPC("UpdateMaxHealth", RpcTarget.AllBuffered, maxHealth);
 
-       // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+        // Actualizar la vida actual en caso de ser necesario
+        pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+
+        // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
-
 
 
     [PunRPC]
@@ -375,7 +388,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log(perdiste + "Perdiste");
         if (pv.IsMine)
         {
-             if (perdiste <= 1)
+             if (perdiste < 1)
             {
                 panelWinRound.SetActive(true);
                 panelLostRound.SetActive(false);

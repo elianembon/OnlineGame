@@ -1369,9 +1369,17 @@ PrefabInstance:
       propertyPath: m_SortingLayerID
       value: 321113017
       objectReference: {fileID: 0}
+    - target: {fileID: 4656804541790164896, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}
+      propertyPath: m_text
+      value: You win!
+      objectReference: {fileID: 0}
     - target: {fileID: 4937766986310156570, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6474662593151487897, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}
+      propertyPath: m_text
+      value: You lost...
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1456,14 +1464,6 @@ PrefabInstance:
       objectReference: {fileID: 1863804806033941305}
     - target: {fileID: 6233754054808599692, guid: 62bbfbc46178f3f41ace8588739f9923, type: 3}
       propertyPath: PanelLost
-      value: 
-      objectReference: {fileID: 2504406151575303930}
-    - target: {fileID: 8844156534374500231, guid: 62bbfbc46178f3f41ace8588739f9923, type: 3}
-      propertyPath: PanelWinRound
-      value: 
-      objectReference: {fileID: 1863804806033941305}
-    - target: {fileID: 8844156534374500231, guid: 62bbfbc46178f3f41ace8588739f9923, type: 3}
-      propertyPath: PanelLostRound
       value: 
       objectReference: {fileID: 2504406151575303930}
     - target: {fileID: 8844156534374500231, guid: 62bbfbc46178f3f41ace8588739f9923, type: 3}
