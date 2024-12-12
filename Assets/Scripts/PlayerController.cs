@@ -17,6 +17,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotationSmoothSpeed = 10f;
     private bool isOutsideSafeZone = false; // Indica si el jugador está fuera de la zona segura
 
+
+    [SerializeField] private float acceleration = 10f; // Aceleración del movimiento
+    [SerializeField] private float maxSpeed = 5f; // Velocidad máxima
+    [SerializeField] private float friction = 0.1f; // Fricción para desacelerar
+    private Vector2 currentVelocity; // Velocidad actual del jugador
+
     // Camera
     [SerializeField] private float cameraFollowSpeed = 5f;
 
@@ -31,6 +37,9 @@ public class PlayerController : MonoBehaviour
 
     private float damageInterval = 1f; // Intervalo para aplicar daño (1 segundo)
     private float damageTimer = 0f; // Temporizador para el daño
+
+
+    
 
     private void Awake()
     {
@@ -104,22 +113,35 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) direction += Vector2.left;
         if (Input.GetKey(KeyCode.D)) direction += Vector2.right;
 
-        bool isMoving = direction != Vector2.zero; 
+        bool isMoving = direction != Vector2.zero;
         animator.SetBool("IsMoving", isMoving); // Setea el parámetro IsMoving
 
         if (isMoving)
         {
-            transform.position += (Vector3)(direction.normalized * 5 * Time.deltaTime);
+            // Calcular la dirección normalizada
+            Vector2 desiredVelocity = direction.normalized * maxSpeed;
 
+            // Acelerar hacia la velocidad deseada
+            currentVelocity = Vector2.MoveTowards(currentVelocity, desiredVelocity, acceleration * Time.deltaTime);
+
+            // Mover al jugador
+            transform.position += (Vector3)(currentVelocity * Time.deltaTime);
+
+            // Calcular el ángulo de rotación
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
 
             // Sincronizar posición y rotación con otros jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
-
         }
-
+        else
+        {
+            // Aplicar fricción cuando no se está moviendo
+            currentVelocity = Vector2.Lerp(currentVelocity, Vector2.zero, friction);
+            transform.position += (Vector3)(currentVelocity * Time.deltaTime);
+            pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+        }
     }
 
     private void HandleDamageOutsideSafeZone()
@@ -239,18 +261,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    //private void NotifyRoundManager()
-    //{
-    //    RoundManager roundManager = FindObjectOfType<RoundManager>();
-    //    if (roundManager != null)
-    //    {
-    //        roundManager.PlayerDefeated(pv.Owner); // Notifica al RoundManager
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("No se encontró un RoundManager en la escena.");
-    //    }
-    //}
+    
 
     private void OnTriggerExit2D(Collider2D other)
     {
@@ -268,7 +279,51 @@ public class PlayerController : MonoBehaviour
             isOutsideSafeZone = false;
 
         }
+
+        if (other.CompareTag("Player") || other.CompareTag("Destructible"))
+        {         
+                // Determinar por qué lado del objeto colisionamos
+                Vector3 direction = other.transform.position - transform.position;
+
+                if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+                {
+                    // Colisión desde la izquierda o la derecha
+                    if (direction.x > 0)
+                    {
+                        Debug.Log("Colisión desde la izquierda");
+                        // Rebote hacia la izquierda
+                        currentVelocity.x = -Mathf.Abs(currentVelocity.x); // Invertir la velocidad en x
+                    }
+                    else
+                    {
+                        Debug.Log("Colisión desde la derecha");
+                        // Rebote hacia la derecha
+                        currentVelocity.x = Mathf.Abs(currentVelocity.x); // Invertir la velocidad en x
+                    }
+                }
+                else
+                {
+                    // Colisión desde arriba o abajo
+                    if (direction.y > 0)
+                    {
+                        Debug.Log("Colisión desde abajo");
+                        // Rebote hacia abajo
+                        currentVelocity.y = -Mathf.Abs(currentVelocity.y); // Invertir la velocidad en y
+                    }
+                    else
+                    {
+                        Debug.Log("Colisión desde arriba");
+                        // Rebote hacia arriba
+                        currentVelocity.y = Mathf.Abs(currentVelocity.y); // Invertir la velocidad en y
+                    }
+                }
+
+                // Aplicar una pequeña fuerza adicional para simular un rebote
+                currentVelocity += new Vector2(direction.x, direction.y).normalized * 4f; // Ajusta el valor según sea necesario
+                pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+        }
     }
+
 
     [PunRPC]
     public void DisconnectPlayer()
