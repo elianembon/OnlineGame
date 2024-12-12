@@ -96,6 +96,7 @@ public class PlayerSpawn : MonoBehaviourPunCallbacks
     void StartCountdown()
     {
         Debug.Log("Inicio de cuenta regresiva en todos los clientes.");
+        GgGameManager.canMove = false; // Reinicia el estado de movimiento
         StartCoroutine(GameStartCoroutine());
     }
 
