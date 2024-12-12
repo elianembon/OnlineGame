@@ -369,7 +369,7 @@ MonoBehaviour:
   healthSlider: {fileID: 8379667488757525622}
   countdownText: {fileID: 0}
   interpolationSpeed: 10
-  panelLostRound: {fileID: 0}
+  panelLostRound: {fileID: 2504406151575303930}
 --- !u!114 &2432270004321734371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1363,6 +1363,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}
+--- !u!1 &2504406151575303930 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7331431979158513397, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}
+  m_PrefabInstance: {fileID: 5151848226703036431}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8207771909688416803 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3934131468694194732, guid: cb5335c46da46844685e26c7db8b00ca, type: 3}

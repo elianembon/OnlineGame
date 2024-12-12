@@ -369,6 +369,7 @@ MonoBehaviour:
   healthSlider: {fileID: 8379667488757525622}
   countdownText: {fileID: 0}
   interpolationSpeed: 10
+  panelLostRound: {fileID: 6515397241537278184}
 --- !u!114 &2432270004321734371
 MonoBehaviour:
   m_ObjectHideFlags: 0
