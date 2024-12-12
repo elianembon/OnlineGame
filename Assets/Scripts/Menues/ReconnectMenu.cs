@@ -8,11 +8,11 @@ using UnityEngine.SceneManagement;
 
 public class ReconnectMenu : MonoBehaviourPunCallbacks
 {
-    public GameObject reconnectPanel;
+    public GameObject PanelLostSession;
 
     void Start()
     {
-        reconnectPanel.SetActive(false);
+        PanelLostSession.SetActive(false);
         
     }
 
@@ -23,7 +23,7 @@ public class ReconnectMenu : MonoBehaviourPunCallbacks
     }
     public void ShowPanelFailed()
     {
-        reconnectPanel.SetActive(true);
+        PanelLostSession.SetActive(true);
         StartCoroutine(WaitBeforeGoToMenu());
     }
 
