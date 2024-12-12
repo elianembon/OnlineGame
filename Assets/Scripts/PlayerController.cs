@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
 
     // Player
+    private bool OnPlay = true;
+
     public int health = 60; // Vida inicial de la nave
     public int maxHealth = 60; // Vida máxima inicial
     [SerializeField] private float rotationSmoothSpeed = 10f;
@@ -88,8 +90,12 @@ public class PlayerController : MonoBehaviour
     {
         if (pv.IsMine)
         {
-            HandleMovement();
-            HandleDamageOutsideSafeZone();
+            if (OnPlay)
+            {
+                HandleMovement();
+                HandleDamageOutsideSafeZone();
+            }
+            
         }
         else
         {
@@ -97,8 +103,6 @@ public class PlayerController : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, networkedPosition, Time.deltaTime * interpolationSpeed);
             transform.rotation = Quaternion.Lerp(transform.rotation, networkedRotation, Time.deltaTime * interpolationSpeed);
             
-
-
         }
     }
 
@@ -230,17 +234,16 @@ public class PlayerController : MonoBehaviour
 
         if (health <= 0)
         {
-            Debug.Log($"Nave {pv.Owner.NickName} destruida.");
-            HandleDefeat();
+            // Actualizar la posición y sincronizarla con los demás jugadores
+            Vector3 newPosition = new Vector3(transform.position.x + 400f, 0f, transform.position.z);
+            transform.position = newPosition; // Aplicar el cambio localmente
 
-            // Asegurarse de que solo el jugador cuya nave ha sido destruida se desconecte
-            if (pv.IsMine)
-            {
-                DisconnectPlayer();
-            }
+            // Sincronizar la nueva posición y rotación con los demás jugadores
+            pv.RPC("UpdateTransform", RpcTarget.Others, newPosition, transform.rotation);
+
+            OnPlay = false;
         }
     }
-
 
     private void HandleDefeat()
     {
