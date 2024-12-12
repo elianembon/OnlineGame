@@ -9,7 +9,7 @@ public class GoToMenu : MonoBehaviour
 
     private void Start()
     {
-        CanvasPause.SetActive(false);
+        //CanvasPause.SetActive(false);
     }
 
     public void goToMenu()

@@ -11,7 +11,7 @@ public class OptionsMenu : MonoBehaviour
 
     private void Start()
     {
-        slider.value = PlayerPrefs.GetFloat("volume", 1f);
+        slider.value = PlayerPrefs.GetFloat("volume", 100f);
         AudioListener.volume = slider.value;
         IsVolumeActive();
     }
