@@ -10,10 +10,12 @@ public class PlayerController : MonoBehaviour
     private PhotonView pv;
     private Camera playerCamera;
     private Animator animator;
+    private PlayerSpawn playerSpawn;
 
+    private int perdiste = 0;
     // Player
     private bool OnPlay = true;
-
+    private Vector3 initialPosition; // Posición inicial del jugador
     public int health = 60; // Vida inicial de la nave
     public int maxHealth = 60; // Vida máxima inicial
     [SerializeField] private float rotationSmoothSpeed = 10f;
@@ -42,8 +44,9 @@ public class PlayerController : MonoBehaviour
 
 
     public GameObject panelLostRound;
+    public GameObject panelWinRound;
 
-
+    public bool win = false;
 
     
 
@@ -53,6 +56,7 @@ public class PlayerController : MonoBehaviour
         playerCamera = GetComponentInChildren<Camera>();
         countdownText = GetComponentInChildren<TextMeshProUGUI>();
         animator = GetComponent<Animator>();
+        playerSpawn = FindObjectOfType<PlayerSpawn>();
     }
 
     private void Start()
@@ -84,7 +88,7 @@ public class PlayerController : MonoBehaviour
             // Desactiva la cámara para los jugadores no propietarios
             playerCamera.gameObject.SetActive(false);
         }
-
+        initialPosition = transform.position;
         // Inicializa las variables de posición y rotación para la interpolación
         networkedPosition = transform.position;
         networkedRotation = transform.rotation;
@@ -190,9 +194,11 @@ public class PlayerController : MonoBehaviour
             healthSlider.value = health;
         }
 
+        pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+
+
         //Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
-
     [PunRPC]
     void UpdateHealth(int newHealth)
     {
@@ -206,6 +212,18 @@ public class PlayerController : MonoBehaviour
     }
 
     [PunRPC]
+    void UpdateMaxHealth(int newMaxHealth)
+    {
+        maxHealth = newMaxHealth;
+
+        // Actualizar el HUD para reflejar la nueva vida máxima
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+        }
+    }
+
+    [PunRPC]
     void IncreaseMaxHealthOnly(int amount)
     {
         if (!pv.IsMine) return;
@@ -213,14 +231,41 @@ public class PlayerController : MonoBehaviour
         // Incrementar solo la vida máxima, sin afectar la vida actual
         maxHealth += amount;
 
-        // Actualizar el HUD para reflejar la nueva vida máxima
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-        }
+        // Enviar a todos los jugadores la nueva vida máxima
+        pv.RPC("UpdateMaxHealth", RpcTarget.AllBuffered, maxHealth);
 
-       // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
+        // Actualizar la vida actual en caso de ser necesario
+        pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+
+        // Debug.Log($"Jugador {pv.Owner.NickName}: vida actual {health}, vida máxima {maxHealth}");
     }
+
+
+    [PunRPC]
+    public void ResetPosition()
+    {
+
+        if (pv.IsMine)
+        {
+            transform.position = initialPosition;
+
+            ResetCamera();
+
+            OnPlay = true;
+
+            pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+
+            // Restaurar valores adicionales si es necesario
+            health = maxHealth;
+            if (healthSlider != null)
+            {
+                healthSlider.value = health;
+            }
+            pv.RPC("UpdateHealth", RpcTarget.AllBuffered, health);
+        }    
+    }
+
+
     [PunRPC]
     void TakeDamage(int damage)
     {
@@ -246,13 +291,9 @@ public class PlayerController : MonoBehaviour
             pv.RPC("UpdateTransform", RpcTarget.Others, newPosition, transform.rotation);
 
 
-
-
-            panelLostRound.SetActive(true);
-
-
-
-
+            SwitchCameraToAnotherPlayer();
+            playerSpawn.PlayerDied();
+            
 
             OnPlay = false;
         }
@@ -338,6 +379,86 @@ public class PlayerController : MonoBehaviour
                 currentVelocity += new Vector2(direction.x, direction.y).normalized * 4f; // Ajusta el valor según sea necesario
                 pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
         }
+    }
+
+    public void PerdisteOGanaste()
+    {
+
+
+        Debug.Log(perdiste + "Perdiste");
+        if (pv.IsMine)
+        {
+             if (perdiste < 1)
+            {
+                panelWinRound.SetActive(true);
+                panelLostRound.SetActive(false);
+            }
+            else
+            {
+                panelLostRound.SetActive(true);
+                panelWinRound.SetActive(false);
+            }
+
+            StartCoroutine(EsperarYIrMenu());
+        }
+    }
+
+
+    [PunRPC]
+    public void SwitchCameraToAnotherPlayer()
+    {
+        if (pv.IsMine)
+        {
+            perdiste += 1;
+        }
+        
+
+        if (!pv.IsMine) return; // Solo el jugador local cambiará su cámara.
+
+        // Define la posición central del mapa.
+        Vector3 mapCenter = new Vector3(0, 0, -10); // Ajusta Z según sea necesario para tu juego.
+
+        // Mueve la cámara al centro del mapa.
+        playerCamera.transform.SetParent(null); // Desvincula la cámara de cualquier padre.
+        playerCamera.transform.position = mapCenter;
+
+        // Opcionalmente ajusta el campo de visión (FOV) de la cámara.
+        Camera cameraComponent = playerCamera.GetComponent<Camera>();
+        if (cameraComponent != null)
+        {
+            cameraComponent.fieldOfView = 130; // Ajusta según el tamaño de tu mapa.
+        }
+    }
+
+    [PunRPC]
+    public void ResetCamera()
+    {
+        if (!pv.IsMine) return; // Solo el jugador local cambiará su cámara.
+
+        Vector3 mapPlayer = new Vector3(initialPosition.x, initialPosition.y, -10); // Ajusta Z según sea necesario para tu juego.
+
+        // Mueve la cámara a la posición inicial del jugador.
+        playerCamera.transform.SetParent(null); // Desvincula la cámara de cualquier padre.
+        playerCamera.transform.position = mapPlayer;
+
+        // Opcionalmente ajusta el campo de visión (FOV) de la cámara.
+        Camera cameraComponent = playerCamera.GetComponent<Camera>();
+        if (cameraComponent != null)
+        {
+            cameraComponent.fieldOfView = 60; // Ajusta según el tamaño de tu mapa.
+        }
+    }
+
+    private IEnumerator EsperarYIrMenu()
+    {
+        // Espera 5 segundos
+        yield return new WaitForSeconds(5f);
+
+        // Desconecta de Photon
+        PhotonNetwork.Disconnect();
+
+        // Cambiar a la escena Menu
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Menu"); // Cambia "Menu" al nombre correcto de tu escena
     }
 
 

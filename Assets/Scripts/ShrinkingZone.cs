@@ -47,10 +47,6 @@ public class ShrinkingZone : MonoBehaviour
             // Sincronizar con otros jugadores
             pv.RPC("SyncZone", RpcTarget.Others, newScale, newPosition);
         }
-        else
-        {
-            Debug.Log("La zona segura ha alcanzado el tamaño mínimo.");
-        }
     }
 
     [PunRPC]

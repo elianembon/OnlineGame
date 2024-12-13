@@ -69,6 +69,11 @@ MonoBehaviour:
   - AssignPrefab
   - SpawnAssignedPrefab
   - SyncAssignedIndices
+  - SwitchCameraToAnotherPlayer
+  - RestartRound
+  - ResetPosition
+  - ResetCamera
+  - UpdateMaxHealth
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

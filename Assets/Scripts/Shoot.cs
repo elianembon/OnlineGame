@@ -44,14 +44,6 @@ public class Shoot : MonoBehaviour
             GameObject bullet = PhotonNetwork.Instantiate(bulletPrefab.name, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
 
             PhotonView bulletPv = bullet.GetComponent<PhotonView>();
-            if (bulletPv != null && bulletPv.IsMine)
-            {
-                Debug.Log($"Jugador {PhotonNetwork.NickName} disparó una bala con ID {bulletPv.ViewID}");
-            }
-        }
-        else
-        {
-            Debug.LogError("No se asignaron el prefab de bala o el punto de spawn.");
         }
     }
 }
