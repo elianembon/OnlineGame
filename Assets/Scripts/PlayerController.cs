@@ -22,9 +22,9 @@ public class PlayerController : MonoBehaviour
     private bool isOutsideSafeZone = false; // Indica si el jugador está fuera de la zona segura
 
 
-    [SerializeField] private float acceleration = 10f; // Aceleración del movimiento
-    [SerializeField] private float maxSpeed = 5f; // Velocidad máxima
-    [SerializeField] private float friction = 0.1f; // Fricción para desacelerar
+     private float acceleration = 10f; // Aceleración del movimiento
+     private float maxSpeed = 6f; // Velocidad máxima
+     private float friction = 0.03f; // Fricción para desacelerar
     private Vector2 currentVelocity; // Velocidad actual del jugador
 
     // Camera
@@ -143,7 +143,7 @@ public class PlayerController : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmoothSpeed);
-
+            
             // Sincronizar posición y rotación con otros jugadores
             pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
         }
@@ -336,49 +336,28 @@ public class PlayerController : MonoBehaviour
             isOutsideSafeZone = false;
 
         }
-
         if (other.CompareTag("Player") || other.CompareTag("Destructible"))
-        {         
-                // Determinar por qué lado del objeto colisionamos
-                Vector3 direction = other.transform.position - transform.position;
+        {
+            // Convertir la posición del objeto colisionado a espacio local
+            Vector3 localDirection = other.transform.InverseTransformPoint(transform.position);
 
-                if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
-                {
-                    // Colisión desde la izquierda o la derecha
-                    if (direction.x > 0)
-                    {
-                        Debug.Log("Colisión desde la izquierda");
-                        // Rebote hacia la izquierda
-                        currentVelocity.x = -Mathf.Abs(currentVelocity.x); // Invertir la velocidad en x
-                    }
-                    else
-                    {
-                        Debug.Log("Colisión desde la derecha");
-                        // Rebote hacia la derecha
-                        currentVelocity.x = Mathf.Abs(currentVelocity.x); // Invertir la velocidad en x
-                    }
-                }
-                else
-                {
-                    // Colisión desde arriba o abajo
-                    if (direction.y > 0)
-                    {
-                        Debug.Log("Colisión desde abajo");
-                        // Rebote hacia abajo
-                        currentVelocity.y = -Mathf.Abs(currentVelocity.y); // Invertir la velocidad en y
-                    }
-                    else
-                    {
-                        Debug.Log("Colisión desde arriba");
-                        // Rebote hacia arriba
-                        currentVelocity.y = Mathf.Abs(currentVelocity.y); // Invertir la velocidad en y
-                    }
-                }
+            // Invertir la velocidad basándonos en la posición local
+            if (localDirection.x != 0)
+            {
+                currentVelocity.x = -currentVelocity.x; // Invertir la velocidad en x
+            }
 
-                // Aplicar una pequeña fuerza adicional para simular un rebote
-                currentVelocity += new Vector2(direction.x, direction.y).normalized * 4f; // Ajusta el valor según sea necesario
-                pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
+            if (localDirection.y != 0)
+            {
+                currentVelocity.y = -currentVelocity.y; // Invertir la velocidad en y
+            }
+
+            // Aplicar una pequeña fuerza adicional para simular un rebote
+            currentVelocity += new Vector2(localDirection.x, localDirection.y).normalized * 4f; // Ajusta el valor según sea necesario
+            pv.RPC("UpdateTransform", RpcTarget.Others, transform.position, transform.rotation);
         }
+
+
     }
 
     public void PerdisteOGanaste()

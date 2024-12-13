@@ -362,9 +362,6 @@ MonoBehaviour:
   health: 60
   maxHealth: 60
   rotationSmoothSpeed: 10
-  acceleration: 10
-  maxSpeed: 5
-  friction: 0.1
   cameraFollowSpeed: 5
   healthSlider: {fileID: 8379667488757525622}
   countdownText: {fileID: 0}
